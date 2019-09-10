@@ -15,6 +15,7 @@ namespace BenchmarkTest
         public FindTreeTest()
         {
             Dict = new Dictionary<string, int>();
+            Dict["abab1123"] = 0;
             Dict["abab1123c"] = 1;
             Dict["abab1123d"] = 2;
 
@@ -54,12 +55,13 @@ namespace BenchmarkTest
         {
             var result = UseShort("abcdefj");
             Assert.Equal(9, result);
+            Assert.Equal(0, UseShort("abab1123"));
         }
 
 
         public unsafe int UseShort(string arg)
         {
-            fixed (char* c = arg)
+            fixed(char * c = arg)
             {
                 switch (*(short*)(c + 2))
                 {
@@ -69,6 +71,8 @@ namespace BenchmarkTest
                             case 49:
                                 switch (*(short*)(c + 8))
                                 {
+                                    case 0:
+                                        return 0;
                                     case 99:
                                         return 1;
                                     case 100:

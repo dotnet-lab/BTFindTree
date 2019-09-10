@@ -12,6 +12,7 @@ namespace SelfTest
             Console.WriteLine((int)char.MaxValue);
             Console.WriteLine(short.MaxValue);
             Dictionary<string, string> dict = new Dictionary<string, string>();
+            dict["abab1123"] = "return 0;";
             dict["abab1123c"] = "return 1;";
             dict["abab1123d"] = "return 2;";
 
@@ -24,8 +25,8 @@ namespace SelfTest
             dict["abcdefi"] = "return 7;";
             dict["abcdefh"] = "return 8;";
             dict["abcdefj"] = "return 9;";
-            //Console.WriteLine(BTFTemplate.GetPointBTFScript(dict));
-            Console.WriteLine(BTFTemplate.GetHashBTFScript(dict));
+            Console.WriteLine(BTFTemplate.GetPointBTFScript(dict));
+            //Console.WriteLine(BTFTemplate.GetHashBTFScript(dict));
             Console.ReadKey();
 
         }

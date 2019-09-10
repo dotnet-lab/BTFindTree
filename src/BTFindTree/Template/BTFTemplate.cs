@@ -9,10 +9,14 @@ namespace BTFindTree
 
         public static string GetHashBTFScript<T>(IDictionary<T,string> pairs)
         {
+
             StringBuilder scriptBuilder = new StringBuilder();
             scriptBuilder.Append("switch(btf.GetHashCode()){");
+
+
             foreach (var item in pairs)
             {
+
                 scriptBuilder.AppendLine($"case {item.Key.GetHashCode()}:");
                 scriptBuilder.AppendLine(item.Value);
                 if (!item.Value.Contains("return "))
@@ -21,8 +25,11 @@ namespace BTFindTree
                 }
                 
             }
+
+
             scriptBuilder.Append("}return default;");
             return scriptBuilder.ToString();
+
         }
 
 
@@ -31,13 +38,20 @@ namespace BTFindTree
         public static string GetPointBTFScript(IDictionary<string,string> parirs)
         {
 
-            PointBTFindTree tree = new PointBTFindTree(parirs);
+            if (parirs == default)
+            {
+                return default;
+            }
+
 
             StringBuilder scriptBuilder = new StringBuilder();
             scriptBuilder.AppendLine($@"fixed (char* c = name){{");
-            var body = ForeachPointTree(tree);
-            body.Length -= 6;
-            scriptBuilder.Append(body);
+
+
+            PointBTFindTree tree = new PointBTFindTree(parirs);
+            scriptBuilder.Append(ForeachPointTree(tree));
+
+
             scriptBuilder.Append("} return default;");
             return scriptBuilder.ToString();
 
@@ -55,6 +69,8 @@ namespace BTFindTree
             
             if (tree.Value!=default)
             {
+
+                //如果是叶节点
                 scriptBuilder.AppendLine($"case {tree.PointCode}:");
                 scriptBuilder.AppendLine(tree.Value);
                 if (!tree.Value.Contains("return "))
@@ -66,7 +82,10 @@ namespace BTFindTree
             else
             {
 
+                //设置头节点
                 var node = tree;
+                //value==default不是空，Nodes定有值
+                //如果是单节点，则直接优化掉，节点层数+1
                 while (node.Nodes.Count == 1)
                 {
                     node = node.Nodes[0];
@@ -74,27 +93,46 @@ namespace BTFindTree
                 }
 
 
+                //如果头节点移动了（发生了优化）
                 if (node != tree)
                 {
+                    //则头节点重新赋值
                     tree.Nodes = node.Nodes;
                 }
 
 
+                //一个集合必然已switch开头
                 scriptBuilder.Append($"switch (*({PointBTFindTree.OfferType}*)(c+{PointBTFindTree.OfferSet * tree.Layer})){{");
+                //此时Nodes一定不是单节点，而是具有兄弟的节点
                 foreach (var item in tree.Nodes)
                 {
+
+                    //如果当前兄弟节点不是叶子
                     if (item.Value==default)
                     {
+
+                        //证明当前节点分支一定还需要再判断
                         scriptBuilder.AppendLine($"case {item.PointCode}:");
+                        scriptBuilder.Append(ForeachPointTree(item));
+                        scriptBuilder.Append("break;");
+
                     }
-                    scriptBuilder.Append(ForeachPointTree(item));
+                    else
+                    {
+
+                        //叶节点再次交给递归处理
+                        scriptBuilder.Append(ForeachPointTree(item));
+
+                    }
+                   
                 }
-                scriptBuilder.Append('}');
-                scriptBuilder.Append("break;");
+                scriptBuilder.Append('}');                
 
             }
             return scriptBuilder;
 
         }
+
     }
+
 }

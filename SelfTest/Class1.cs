@@ -10,36 +10,51 @@ namespace SelfTest
         {
             fixed (char* c = name)
             {
-                switch (*(int*)(c + 2))
+                switch (*(short*)(c + 2))
                 {
-                    case 6422625:
-                        switch (*(int*)(c + 4))
+                    case 97:
+                        switch (*(short*)(c + 4))
                         {
-                            case 3211313:
-                                switch (*(int*)(c + 8))
+                            case 49:
+                                switch (*(short*)(c + 8))
                                 {
+                                    case 0:
+                                        return 0;
                                     case 99:
                                         return 1;
                                     case 100:
                                         return 2;
                                 }
                                 break;
-                            case 3276850:
-                                switch (*(int*)(c + 8))
+                            case 50:
+                                switch (*(short*)(c + 9))
                                 {
-                                    case 101:
+                                    case 0:
                                         return 3;
-                                    case 7471205:
+                                    case 114:
                                         var a = 1 + 1;
                                         break;
                                 }
                                 break;
-                            case 3276851:
+                            case 51:
                                 return 4;
                         }
                         break;
-                    case 6553699:
-                        return 5;
+                    case 99:
+                        switch (*(short*)(c + 6))
+                        {
+                            case 102:
+                                return 5;
+                            case 103:
+                                return 6;
+                            case 105:
+                                return 7;
+                            case 104:
+                                return 8;
+                            case 106:
+                                return 9;
+                        }
+                        break;
                 }
             }
             return default;

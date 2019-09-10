@@ -17,6 +17,7 @@ namespace BenchmarkTest
         public FindTreeTest()
         {
             Dict = new Dictionary<string, int>();
+            Dict["abab1123"] = 0;
             Dict["abab1123c"] = 1;
             Dict["abab1123d"] = 2;
 

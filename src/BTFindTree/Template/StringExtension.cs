@@ -22,5 +22,15 @@
             }
         }
 
+
+
+        public unsafe static int GetShort(this string value, int index)
+        {
+            fixed (char* c = value)
+            {
+                return *(short*)(c + index);
+            }
+        }
+
     }
 }

@@ -10,7 +10,7 @@ namespace BTFindTree
         public static string GetHashBTFScript<T>(IDictionary<T,string> pairs)
         {
             StringBuilder scriptBuilder = new StringBuilder();
-            scriptBuilder.Append("switch(btf.GetHasCode()){");
+            scriptBuilder.Append("switch(btf.GetHashCode()){");
             foreach (var item in pairs)
             {
                 scriptBuilder.AppendLine($"case {item.Key.GetHashCode()}:");
@@ -21,8 +21,7 @@ namespace BTFindTree
                 }
                 
             }
-            scriptBuilder.AppendLine("default:return default;");
-            scriptBuilder.Append("}");
+            scriptBuilder.Append("}return default;");
             return scriptBuilder.ToString();
         }
 

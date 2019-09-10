@@ -93,14 +93,14 @@ namespace BTFindTree
         public int Layer;
 
 
-        public const int OfferSet = 2;
-        public const string OfferType = "int";
+        public const int OfferSet = 1;
+        public const string OfferType = "short";
 
         public PointBTFindTree(KeyValuePair<string, string> value, int layer = 0)
         {
 
             Value = value.Value;
-            PointCode = value.Key.GetInt(layer);
+            PointCode = value.Key.GetShort(layer);
             Layer = layer;
 
         }
@@ -142,7 +142,7 @@ namespace BTFindTree
                     else
                     {
 
-                        int pcode = item.Key.GetInt(layer);
+                        int pcode = item.Key.GetShort(layer);
                         if (!valuesDict.ContainsKey(pcode))
                         {
                             valuesDict[pcode] = new Dictionary<string, string>();

@@ -9,8 +9,6 @@ namespace SelfTest
         static void Main(string[] args)
         {
 
-            Console.WriteLine((int)char.MaxValue);
-            Console.WriteLine(short.MaxValue);
             Dictionary<string, string> dict = new Dictionary<string, string>();
             dict["abab1123"] = "return 0;";
             dict["abab1123c"] = "return 1;";

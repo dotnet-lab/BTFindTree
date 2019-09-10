@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 
 namespace BTFindTree
@@ -84,7 +83,9 @@ namespace BTFindTree
 
                 //设置头节点
                 var node = tree;
-                //value==default不是空，Nodes定有值
+
+
+                //value==default不为空则Nodes定有值
                 //如果是单节点，则直接优化掉，节点层数+1
                 while (node.Nodes.Count == 1)
                 {
@@ -93,7 +94,7 @@ namespace BTFindTree
                 }
 
 
-                //如果头节点移动了（发生了优化）
+                //如果头节点移动了（允许优化）
                 if (node != tree)
                 {
                     //则头节点重新赋值
@@ -107,7 +108,7 @@ namespace BTFindTree
                 foreach (var item in tree.Nodes)
                 {
 
-                    //如果当前兄弟节点不是叶子
+                    //如果当前子节点不是叶节点
                     if (item.Value==default)
                     {
 

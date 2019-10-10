@@ -91,5 +91,41 @@ namespace SelfTest
             return default;
 
         }
+
+
+
+        public unsafe int C(string name)
+        {
+            fixed (char* c = name)
+            {
+                switch (*(ulong*)(c + 0))
+                {
+                    case 27584964335894625:
+                        if (*(ulong*)(c + 4) == 14355434268917810)
+                        {
+                            if (*(ushort*)(c + 8) == 101)
+                            {
+                                switch (*(ushort*)(c + 9))
+                                {
+                                    case 114:
+                                        var a = 1 + 1;
+                                        break;
+                                    case 0:
+                                        return 3;
+                                }
+                            }
+                        }
+                        break;
+                    case 28147922879250529:
+                        if (*(ulong*)(c + 4) == 442388316261)
+                        {
+                            return 6;
+
+                        }
+                        break;
+                }
+            }
+            return default;
+        }
     }
 }

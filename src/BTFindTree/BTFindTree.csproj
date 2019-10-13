@@ -2,6 +2,22 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netcoreapp3.0;</TargetFrameworks>
+    <Product>BTFindTree</Product>
+    <Description>快速查找算法，支持hash查找树，模糊trip查找树，归并最小权查找树。</Description>
+    <Copyright>.NET Core Community and Contributors</Copyright>
+    <PackageId>DotNetCore.BTFindTree</PackageId>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <PackageReleaseNotes>支持hash查找树，模糊trip查找树，归并最小权查找树。</PackageReleaseNotes>
+    <Version>0.1.0</Version>
+    <PackageLicenseUrl>https://github.com/dotnet-lab/BTFindTree/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/dotnet-lab/BTFindTree</PackageProjectUrl>
+    <PackageTags>FastFind; DynamicBuild;Natasha;</PackageTags>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <FileVersion>0.1.0</FileVersion>
+    <Company>.NET Core Community</Company>
+    <PackageIconUrl>https://avatars2.githubusercontent.com/u/19404084</PackageIconUrl>
+    <AssemblyVersion>0.1.0</AssemblyVersion>
+    <Authors>NMSAzulX</Authors>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\BTFindTree\BTFindTree.csproj" />
+    <ProjectReference Include="..\..\src\BTFindTree\BTFindTree.csproj" />
   </ItemGroup>
 
 </Project>

@@ -13,11 +13,11 @@ namespace BenchmarkTest
     public class FindTreeTest
     {
 
-        Func<string, int> HashDelegate;
-        Func<string, int> FuzzyDelegate;
-        Func<string, int> PrecisionDelegate;
-        Dictionary<string, int> Dict;
-        Dictionary<string, string> ScriptDict;
+        readonly Func<string, int> HashDelegate;
+        readonly Func<string, int> FuzzyDelegate;
+        readonly Func<string, int> PrecisionDelegate;
+        readonly Dictionary<string, int> Dict;
+        readonly Dictionary<string, string> ScriptDict;
 
         public FindTreeTest()
         {

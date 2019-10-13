@@ -8,7 +8,7 @@ namespace BTFindTree
     public class PrecisionMinPriorityTree
     {
 
-        private int MaxLength;
+        private readonly int MaxLength;
         private int MaxMatchCount;
         public readonly List<string> Values;
         private List<RepeateModel> PriorityCache;
@@ -617,10 +617,12 @@ namespace BTFindTree
                     if (frequency > 1)
                     {
 
-                        model = new RepeateModel();
-                        model.StartIndex = i;
-                        model.Length = length;
-                        model.MatchCount = frequency;
+                        model = new RepeateModel
+                        {
+                            StartIndex = i,
+                            Length = length,
+                            MatchCount = frequency
+                        };
                         return model;
 
                     }
@@ -667,10 +669,12 @@ namespace BTFindTree
                     if (frequency > 1)
                     {
 
-                        model = new RepeateModel();
-                        model.StartIndex = i;
-                        model.Length = length;
-                        model.MatchCount = frequency;
+                        model = new RepeateModel
+                        {
+                            StartIndex = i,
+                            Length = length,
+                            MatchCount = frequency
+                        };
                         return model;
 
                     }

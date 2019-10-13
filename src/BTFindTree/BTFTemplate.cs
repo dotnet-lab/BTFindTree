@@ -176,8 +176,8 @@ namespace BTFindTree
                 if (node.Value != default)
                 {
 
-                    var result = node.Value.GetCompareBuilder(node.Length, node.Offset);
-                    builder.AppendLine($"if({result.compareBuilder} == {result.code}){{");
+                    var (compareBuilder, code) = node.Value.GetCompareBuilder(node.Length, node.Offset);
+                    builder.AppendLine($"if({compareBuilder} == {code}){{");
                     if (node.Next == default || node.Next.Count == 0)
                     {
 
@@ -223,15 +223,15 @@ namespace BTFindTree
                     else
                     {
 
-                        (StringBuilder compareBuilder, ulong code) result = item.Value.GetCompareBuilder(item.Length,item.Offset);
+                        (StringBuilder compareBuilder, ulong code) = item.Value.GetCompareBuilder(item.Length,item.Offset);
                         if (!hashAppendSwitch)
                         {
-                            builder.AppendLine($"switch({result.compareBuilder}){{");
+                            builder.AppendLine($"switch({compareBuilder}){{");
                             hashAppendSwitch = true;
                         }
 
 
-                        builder.AppendLine($"case {result.code}:");
+                        builder.AppendLine($"case {code}:");
                         if (item.Next == default || item.Next.Count == 0)
                         {
 

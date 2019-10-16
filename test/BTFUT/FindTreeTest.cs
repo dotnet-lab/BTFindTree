@@ -36,9 +36,9 @@ namespace BenchmarkTest
             Dict["a"] = 11;
 
             ScriptDict = new Dictionary<string, string>(Dict.Select(item => KeyValuePair.Create(item.Key, "return " + item.Value.ToString()+";")));
-            HashDelegate = NFunc<string, int>.UnsafeDelegate(BTFTemplate.GetHashBTFScript(ScriptDict));
-            FuzzyDelegate = NFunc<string, int>.UnsafeDelegate(BTFTemplate.GetFuzzyPointBTFScript(ScriptDict));
-            PrecisionDelegate = NFunc<string, int>.UnsafeDelegate(BTFTemplate.GetPrecisionPointBTFScript(ScriptDict));
+            HashDelegate = NFunc<string, int>.UnsafeDelegate(BTFTemplate.GetHashBTFScript(ScriptDict)+"return default;");
+            FuzzyDelegate = NFunc<string, int>.UnsafeDelegate(BTFTemplate.GetFuzzyPointBTFScript(ScriptDict) + "return default;");
+            PrecisionDelegate = NFunc<string, int>.UnsafeDelegate(BTFTemplate.GetPrecisionPointBTFScript(ScriptDict) + "return default;");
         }
 
 

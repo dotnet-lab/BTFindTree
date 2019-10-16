@@ -28,7 +28,7 @@ namespace BTFindTree
             }
 
 
-            scriptBuilder.Append("}return default;");
+            scriptBuilder.Append("}");
             return scriptBuilder.ToString();
 
         }
@@ -53,7 +53,7 @@ namespace BTFindTree
             scriptBuilder.Append(ForeachFuzzyTree(tree));
 
 
-            scriptBuilder.Append("} return default;");
+            scriptBuilder.Append("}");
             return scriptBuilder.ToString();
 
         }
@@ -153,7 +153,7 @@ namespace BTFindTree
             PrecisionMinPriorityTree tree = new PrecisionMinPriorityTree(parirs.Keys.ToArray());
             scriptBuilder.AppendLine(ForeachPrecisionTree(tree.GetPriorityTrees(), parirs));
 
-            scriptBuilder.AppendLine("} return default;");
+            scriptBuilder.AppendLine("}");
             return scriptBuilder.ToString();
         }
 

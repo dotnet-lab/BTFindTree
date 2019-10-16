@@ -49,29 +49,31 @@ namespace BTFindTree.Template.PrecisionTreeTemplate.Model
 
             var models = new List<RepeateModel>();
             var node = new RepeateModel();
-
             bool isFirst = true;
             for (int i = 0; i < RepeateCache.Count; i++)
             {
+
                 if (RepeateCache[i] >= matchCount)
                 {
-                    if (!isFirst)
-                    {
-                        node.Length += 1;
-                    }
-                    else
+
+                    node.Length += 1;
+                    if (isFirst)
                     {
                         node.StartIndex = i;
+                        isFirst = false;
                     }
+
                 }
                 else
                 {
+
                     if (!isFirst)
                     {
                         models.Add(node);
                         node = new RepeateModel();
                         isFirst = true;
                     }
+
                 }
             }
             if (models.Count == 0)

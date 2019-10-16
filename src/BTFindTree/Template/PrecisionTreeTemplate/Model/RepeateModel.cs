@@ -10,9 +10,11 @@ namespace BTFindTree.Template.PrecisionTreeTemplate.Model
     {
         public RepeateModel(int startIndex = 0)
         {
+
             StartIndex = startIndex;
             Length = 1;
             MatchCount = 0;
+
         }
         public int StartIndex;
         public int Length;

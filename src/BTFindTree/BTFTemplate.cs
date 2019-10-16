@@ -193,10 +193,6 @@ namespace BTFindTree
                     builder.Append('}');
 
                 }
-                else
-                {
-                    builder.AppendLine($"{parirs[node.FullValue]}");
-                }
 
 
             }
@@ -246,10 +242,18 @@ namespace BTFindTree
                         else
                         {
 
-                            builder.AppendLine(ForeachPrecisionTree(item.Next, parirs, deep));
-                            builder.AppendLine($"break;");
+                            if (item.Next.Count == 1 && item.Next[0].Value==default)
+                            {
+                                builder.AppendLine($"{parirs[item.Next[0].FullValue]}");
+                            }
+                            else
+                            {
+                                builder.AppendLine(ForeachPrecisionTree(item.Next, parirs, deep));
+                                builder.AppendLine("break;");
+                            }
 
                         }
+                        
                     }
 
 

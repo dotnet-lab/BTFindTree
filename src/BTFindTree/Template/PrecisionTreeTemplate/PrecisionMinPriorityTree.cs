@@ -13,8 +13,8 @@ namespace BTFindTree
         public readonly List<string> Values;
         private List<RepeateModel> PriorityCache;
         private readonly Dictionary<string, FrequencyModel> TripModels;
-        
-        
+
+
         public PrecisionMinPriorityTree(params string[] strs)
         {
 
@@ -129,14 +129,16 @@ namespace BTFindTree
 
         public void GetAllWordsFrequency()
         {
+
             int priority = int.MaxValue;
-            for (int i = 2; i <= MaxMatchCount; i++)
+            for (int i = 1; i <= MaxMatchCount; i++)
             {
 
                 foreach (var item in TripModels)
                 {
 
-                    var list = item.Value.GetByMatchCount(i);
+                    //找到连续的相同位置的字符串 i 是能匹配到的频次
+                    var list = item.Value.GetByMatchCount(i + 1);
                     //Console.WriteLine();
                     //Console.Write("字符串 ");
                     //Console.ForegroundColor = ConsoleColor.Magenta;
@@ -150,17 +152,23 @@ namespace BTFindTree
                     List<RepeateModel> modelCache = new List<RepeateModel>();
                     foreach (var itemList in list)
                     {
+                        if (i==6)
+                        {
+
+                        }
+                        //记录上一次偏移量，如果有间隔，则添加间隔
                         if (offset != itemList.StartIndex)
                         {
                             modelCache.AddRange(GetFromSpace(itemList.StartIndex, ref offset));
                         }
 
                         offset = itemList.StartIndex + itemList.Length;
-
                         var str = item.Key.Substring(itemList.StartIndex, itemList.Length);
+
+
+                        //进行高频比对，先找到高频为4出现最多的，如果再中间，则两头比对
+                        //结果应该是当前比对字串的分割集合
                         var models = GetHighFrequency(str, itemList.StartIndex);
-
-
                         for (int j = 0; j < models.Count; j++)
                         {
 
@@ -168,6 +176,7 @@ namespace BTFindTree
                             if (models[j].MatchCount > 0)
                             {
 
+                                //增加偏移量，使用当前的偏移量
                                 temp.StartIndex += itemList.StartIndex;
                                 modelCache.Add(temp);
 
@@ -245,7 +254,7 @@ namespace BTFindTree
                                 priority.FullValue = item;
                                 priority.Offset = model.StartIndex;
                                 priority.Length = model.Length;
-                                if (deepth != models.Count - 1 )
+                                if (deepth != models.Count - 1)
                                 {
                                     priority.Next.Add(new PriorityTreeModel()
                                     {
@@ -281,7 +290,7 @@ namespace BTFindTree
                         }
 
 
-                       
+
                         dict[sets[node]].Add(item);
                         cache.Remove(item);
 
@@ -309,10 +318,12 @@ namespace BTFindTree
 
         private static List<RepeateModel> GetFromSpace(int index, ref int offset)
         {
+
             var list = new List<RepeateModel>();
             if (offset < index)
             {
 
+                //如果当前偏移量比前一偏移量多3个长度
                 while (index - offset > 3)
                 {
 
@@ -327,15 +338,30 @@ namespace BTFindTree
                 }
 
 
+                //如果小玉3个长度
                 if (offset != index)
                 {
-                    RepeateModel model2 = new RepeateModel
+
+                    RepeateModel model2 = new RepeateModel();
+                    if (index - offset == 3)
                     {
-                        StartIndex = offset,
-                        Length = index - offset
-                    };
-                    offset += index - offset;
+
+                        model2.StartIndex = offset - 1;
+                        model2.Length = 4;
+
+
+                    }
+                    else
+                    {
+
+                        model2.StartIndex = offset;
+                        model2.Length = index - offset;
+
+                    }
+                    //偏移量增加
+                    offset = index;
                     list.Add(model2);
+
                 }
 
             }
@@ -395,7 +421,13 @@ namespace BTFindTree
 
             List<RepeateModel> result = new List<RepeateModel>();
             RepeateModel model;
-            if (str.Length < 4)
+
+            if (str.Length == 1)
+            {
+
+                model = GetHightFrequencyByIndex(str, index, 1);
+
+            }else if (str.Length == 2)
             {
 
                 model = GetHightFrequencyByIndex(str, index, 2);
@@ -587,6 +619,13 @@ namespace BTFindTree
                 }
 
 
+                if (totle<0)
+                {
+                    model.Length = length;
+                    model.StartIndex = 0;
+                }
+
+
                 for (int i = 0; i <= totle; i++)
                 {
 
@@ -614,7 +653,7 @@ namespace BTFindTree
                     }
 
 
-                    if (frequency > 1)
+                    if (frequency > 0)
                     {
 
                         model = new RepeateModel
@@ -666,7 +705,7 @@ namespace BTFindTree
                     }
 
 
-                    if (frequency > 1)
+                    if (frequency > 0)
                     {
 
                         model = new RepeateModel

@@ -14,7 +14,7 @@ namespace BTFindTree
 
 
         public const int OfferSet = 1;
-        public const string OfferType = "short";
+        public const string OfferType = "ushort";
 
 
         public FuzzyPointTree(KeyValuePair<string, string> value, int layer = 0)
@@ -81,6 +81,9 @@ namespace BTFindTree
 
                         //将当前值以及元素添加到缓存
                         valuesDict[pcode][item.Key] = item.Value;
+                        //code - key - value
+                        //code - key1 - value1
+                        //code - key2 - value2
 
                     }
 
@@ -91,6 +94,8 @@ namespace BTFindTree
                 {
 
                     //将指针值以及改指针值下面的元素继续递归处理
+                    //以当前元素为节点，字典向下传递
+                    //pcode 即 item.Key  向下传递               
                     Nodes.Add(new FuzzyPointTree(item.Value, layer + 1, item.Key));
 
                 }

@@ -28,15 +28,19 @@ namespace BenchmarkTest
             //Dict["abab2213e"] = 3;
             //Dict["abab2213er"] = 4;
             //Dict["abab3213f"] = 5;
-            Dict["abcdeff"] = 6;
-            Dict["abcdefg"] = 7;
+            //Dict["abcdeff"] = 6;
+            //Dict["abcdefg"] = 7;
             //Dict["abcdefi"] = 8;
             //Dict["abcdefh"] = 9;
             //Dict["abcdefj"] = 10;
-            Dict["a"] = 11;
+            //Dict["a"] = 11;
             //Dict["Age"] = 0;
             //Dict["Name"] = 1;
-
+            Dict["acbc1"] = 1;
+            Dict["afdc2"] = 1;
+            Dict["a73c5"] = 1;
+            Dict["a7"] = 1;
+            Dict["a74d5"] = 1;
             ScriptDict = new Dictionary<string, string>(Dict.Select(item => KeyValuePair.Create(item.Key, "return " + item.Value.ToString() + ";")));
             //HashDelegate = NFunc<string, int>.UnsafeDelegate(BTFTemplate.GetHashBTFScript(ScriptDict)+"return default;");
             //FuzzyDelegate = NFunc<string, int>.UnsafeDelegate(BTFTemplate.GetFuzzyPointBTFScript(ScriptDict) + "return default;");

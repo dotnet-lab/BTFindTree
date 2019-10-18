@@ -224,7 +224,7 @@ namespace BTFindTree
         /*            n1                                  n2
         *        /    \      \                          /     \ 
         *       /      \      \                        /       \
-        *     n3e      n4      d4                     n5         n6e
+        *     n3e      n4      d4                     n5       n6e
         *               |     /  \                    /\
         *              n7e  n8e  n9e               n10e  n11e
         *             

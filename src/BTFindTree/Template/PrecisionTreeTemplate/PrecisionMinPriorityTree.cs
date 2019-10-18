@@ -232,7 +232,7 @@ namespace BTFindTree
          *   d:   无数据的空白节点
          *   e:  末尾
          */ 
-        private static List<PriorityTreeModel> GetTrees(IEnumerable<string> strs, List<RepeateModel> models, int deepth = 0)
+        private List<PriorityTreeModel> GetTrees(IEnumerable<string> strs, List<RepeateModel> models, int deepth = 0)
         {
 
             //创建字符串集合缓存
@@ -306,6 +306,11 @@ namespace BTFindTree
                                 };
 
 
+                                if (MaxLength == model.StartIndex + model.Length)
+                                {
+                                    priority.FullValue = item;
+                                }
+
 
                                 //添加到叶节点集合中
                                 lists.Add(priority);
@@ -316,14 +321,19 @@ namespace BTFindTree
 
                             }
 
-                            //添加他的子节点为结束节点
-                            sets[node].Next.Add(new PriorityTreeModel()
+                            if (MaxLength != model.StartIndex + model.Length)
                             {
 
-                                FullValue = item,
-                                IsZeroNode = true
+                                //添加他的子节点为结束节点
+                                sets[node].Next.Add(new PriorityTreeModel()
+                                {
 
-                            });
+                                    FullValue = item,
+                                    IsDefaultNode = true
+
+                                });
+
+                            }
 
                         }
                         else

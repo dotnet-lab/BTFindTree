@@ -183,33 +183,62 @@ namespace BTFindTree
             {
 
                 var node = nodes[i];
-                if (node.FullValue!=null)
+                
+                if (node.IsDefaultNode)
+                {
+
+                    //默认节点
+                    if (node.FullValue != default)
+                    {
+
+                        defaultBuilder.AppendLine($"default:");
+                        var returnStr = parirs[node.FullValue];
+                        defaultBuilder.AppendLine($"{returnStr}");
+                        if (!returnStr.Contains("return "))
+                        {
+                            defaultBuilder.AppendLine("break;");
+                        }
+
+                    }
+                    else if(node.Next.Count > 0)
+                    {
+
+                        while (node.Next.Count == 1)
+                        {
+                            node.Next = node.Next[0].Next;
+                        }
+                         
+
+                        if (node.Next.Count > 0)
+                        {
+                            defaultBuilder.AppendLine($"default:");
+                            defaultBuilder.AppendLine(ForeachPrecisionTree(node.Next, parirs));
+                            defaultBuilder.AppendLine("break;");
+                        }
+                        
+                    }
+
+
+                }
+                else if (node.FullValue != null)
                 {
                     //nxe节点 末尾节点
                     //if (node.IsZeroNode)
                     //{
-                      //  caseBuilder.AppendLine($"case 0:");
+                    //  caseBuilder.AppendLine($"case 0:");
                     //}
-                   
+                    var (compareBuilder, code) = node.Value.GetCompareBuilder(node.Length, node.Offset);
+                    if (switchBuilder.Length == 0)
+                    {
+                        switchBuilder.AppendLine($"switch({compareBuilder}){{");
+                    }
+
+                    caseBuilder.AppendLine($"case {code}:");
                     var returnStr = parirs[node.FullValue];
                     caseBuilder.AppendLine($"{returnStr}");
-                    //if (!returnStr.Contains("return "))
-                    //{
-                    //    caseBuilder.AppendLine("break;");
-                    //}
-
-                }
-                else if (node.IsDefaultNode)
-                {
-
-                    //默认节点
-                    if (node.Next.Count!=0)
+                    if (!returnStr.Contains("return "))
                     {
-
-                        defaultBuilder.AppendLine($"default:");
-                        defaultBuilder.AppendLine(ForeachPrecisionTree(node.Next, parirs));
-                        defaultBuilder.AppendLine("break;");
-
+                        caseBuilder.AppendLine("break;");
                     }
 
                 }

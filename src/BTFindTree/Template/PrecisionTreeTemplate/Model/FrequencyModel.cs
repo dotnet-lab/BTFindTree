@@ -8,7 +8,7 @@ namespace BTFindTree.Template.PrecisionTreeTemplate.Model
 
         // str: abcd
         public string Value;
-
+        public int Length;
         /*   
          *    char               :   a - b - c - d
          *    index              :   0 - 1 - 2 - 3
@@ -21,6 +21,7 @@ namespace BTFindTree.Template.PrecisionTreeTemplate.Model
         {
 
             Value = value;
+            Length = value.Length;
             //字符串的每个字符进行缓存
             RepeateCache = new int[value.Length];
 

@@ -237,6 +237,7 @@ namespace BTFindTree
 
             //创建字符串集合缓存
             HashSet<string> cache = new HashSet<string>(strs);
+            int startLength = cache.Count;
             //创建叶节点集合
             List<PriorityTreeModel> lists = new List<PriorityTreeModel>();
 
@@ -245,9 +246,9 @@ namespace BTFindTree
             {
 
                 //创建字符映射叶子节点
-                Dictionary<string, PriorityTreeModel> sets = new Dictionary<string, PriorityTreeModel>();
+                Dictionary<string, PriorityTreeModel> StringToModelMapping = new Dictionary<string, PriorityTreeModel>();
                 //创建叶节点映射全字符串
-                Dictionary<PriorityTreeModel, List<string>> dict = new Dictionary<PriorityTreeModel, List<string>>();
+                Dictionary<PriorityTreeModel, List<string>> ModelToStringsMapping = new Dictionary<PriorityTreeModel, List<string>>();
 
 
                 //找到当前层的分割节点
@@ -261,7 +262,6 @@ namespace BTFindTree
                     {
 
                         string node;
-
                         //如果 拾取长度 大等于 字符串的总长度 
                         //则只截取字符串剩余的部分
                         if (item.Length < model.StartIndex + model.Length)
@@ -269,6 +269,8 @@ namespace BTFindTree
 
                             //截取当前剩余字串
                             node = item.Substring(model.StartIndex, item.Length - model.StartIndex);
+                            //如果字符串已经被耗尽，则停止对它的解析
+                            TripCache[item].Length -= item.Length - model.StartIndex;
 
 
                             //创建一个方案节点
@@ -284,67 +286,37 @@ namespace BTFindTree
                             //添加到叶节点集合中
                             lists.Add(priority);
                             //创建与该方案相关的字串集合
-                            dict[priority] = new List<string>();
+                            ModelToStringsMapping[priority] = new List<string>();
                             //相同的截取字符串和方案节点添加到缓存
-                            sets[node] = priority;
+                            StringToModelMapping[node] = priority;
 
-                        }
-                        else if (item.Length == model.StartIndex + model.Length)
-                        {
 
-                            //截取当前剩余字串
-                            node = item.Substring(model.StartIndex, model.Length);
-                            if (!sets.ContainsKey(node))
+                            if (TripCache[item].Length == 0)
                             {
 
-                                //仅仅是匹配类型的节点
-                                PriorityTreeModel priority = new PriorityTreeModel
-                                {
-                                    Value = node,
-                                    Offset = model.StartIndex,
-                                    Length = model.Length
-                                };
-
-
-                                if (MaxLength == model.StartIndex + model.Length)
-                                {
-                                    priority.FullValue = item;
-                                }
-
-
-                                //添加到叶节点集合中
-                                lists.Add(priority);
-                                //创建与该方案相关的字串集合
-                                dict[priority] = new List<string>();
-                                //相同的截取字符串和方案节点添加到缓存
-                                sets[node] = priority;
+                                priority.IsEndNode = true;
 
                             }
-
-                            if (MaxLength != model.StartIndex + model.Length)
+                            else
                             {
 
-                                //添加他的子节点为结束节点
-                                sets[node].Next.Add(new PriorityTreeModel()
-                                {
-
-                                    FullValue = item,
-                                    IsDefaultNode = true
-
-                                });
+                                //如果字符串还未耗尽，则继续解析
+                                ModelToStringsMapping[priority].Add(item);
 
                             }
 
                         }
                         else
-                        {
+                        { 
 
                             //如果 拾取长度 小于 字符串的总长度 ，说明可以充分截取
                             node = item.Substring(model.StartIndex, model.Length);
+                            TripCache[item].Length -= model.Length;
+
 
                             //如果缓存中还没有这个截取方案
                             //则生成截取方案节点
-                            if (!sets.ContainsKey(node))
+                            if (!StringToModelMapping.ContainsKey(node))
                             {
 
                                 //仅仅是匹配类型的节点
@@ -355,26 +327,80 @@ namespace BTFindTree
                                     Length = model.Length
                                 };
 
+
                                 //添加到叶节点集合中
                                 lists.Add(priority);
                                 //创建与该方案相关的字串集合
-                                dict[priority] = new List<string>();
+                                ModelToStringsMapping[priority] = new List<string>();
                                 //相同的截取字符串和方案节点添加到缓存
-                                sets[node] = priority;
+                                StringToModelMapping[node] = priority;
 
                             }
 
+
+                            if (TripCache[item].Length == 0 && deepth == models.Count - 1)
+                            {
+
+                                StringToModelMapping[node].FullValue = item;
+                                StringToModelMapping[node].IsZeroNode = true;
+
+                            }
+                            else
+                            {
+
+                                //如果字符串还未耗尽，则继续解析
+                                ModelToStringsMapping[StringToModelMapping[node]].Add(item);
+
+                            }
+
+                            
+
                         }
 
-                        dict[sets[node]].Add(item);
+                        
                         cache.Remove(item);
+
+                    }
+                    else if (item.Length == model.StartIndex)
+                    {
+
+                        // abcdef
+                        // abcd
+                        if (TripCache[item].Length == 0)
+                        {
+
+                            //创建一个方案节点
+                            PriorityTreeModel priority = new PriorityTreeModel
+                            {
+
+                                FullValue = item,
+                                IsEndNode = true,
+                                IsZeroNode = true
+
+                            };
+                            //添加到叶节点集合中
+                            lists.Add(priority);
+                            cache.Remove(item);
+
+                        }
+
+                        // 1abcdef
+                        // 3abcdefg
+                        // 4abcdegga
+                        // 2abcd
+                        // 5abev
+                        // 1 -- abcd
+                        //   -- abev
+                        // 2 -- ef
+                        //   -- eg
 
                     }
 
                 }
 
+
                 int nextDeepth = deepth + 1;
-                foreach (var item in dict)
+                foreach (var item in ModelToStringsMapping)
                 {
 
                     item.Key.Next.AddRange(GetTrees(item.Value, models, nextDeepth));
@@ -438,7 +464,7 @@ namespace BTFindTree
                 {
 
                     //提前借一位，并取4个长度
-                    model2.StartIndex = offset - 1;
+                    model2.StartIndex = offset;
                     model2.Length = 4;
 
                 }
@@ -618,8 +644,7 @@ namespace BTFindTree
 
                 //如果是4个或者4个以上的, 那么找到4个字符为一组的，匹配最多的那组
                 model = GetMaxFrequencyModel(str, index);
-                model.StartIndex += offset;
-                result.Add(model);
+                
 
                 //如果该组左侧有字符，那么递归处理左侧字符
                 if (model.StartIndex > 0)
@@ -644,15 +669,18 @@ namespace BTFindTree
                     var source = str.Substring(model.StartIndex, str.Length - tempOffset);
                     if (source.Length == 3)
                     {
-                        result.AddRange(GetHighFrequency(source, index, tempOffset + offset, MatchOrder.RightToLeft, str.Substring(model.StartIndex + 3, 4)));
+                        result.AddRange(GetHighFrequency(source, index + 4, tempOffset + offset, MatchOrder.RightToLeft, str.Substring(model.StartIndex + 3, 4)));
                     }
                     else
                     {
-                        result.AddRange(GetHighFrequency(source, index, tempOffset + offset));
+                        result.AddRange(GetHighFrequency(source, index + 4, tempOffset + offset));
                     }
 
                 }
 
+
+                model.StartIndex += offset;
+                result.Add(model);
             }
 
             return result;

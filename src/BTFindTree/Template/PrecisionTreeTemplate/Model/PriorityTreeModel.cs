@@ -20,6 +20,7 @@ namespace BTFindTree.Template.PrecisionTreeTemplate.Model
         public int Length;
         public int Offset;
         public bool IsDefaultNode;
+        public bool IsEndNode;
         public bool IsZeroNode;
 
     }

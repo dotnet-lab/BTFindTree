@@ -12,13 +12,13 @@ namespace BTFindTree
         private int MaxMatchCount;
         public readonly List<string> Values;
         private List<RepeateModel> PriorityCache;
-        private readonly Dictionary<string, FrequencyModel> TripModels;
+        private readonly Dictionary<string, FrequencyModel> TripCache;
 
 
         public PrecisionMinPriorityTree(params string[] strs)
         {
 
-            TripModels = new Dictionary<string, FrequencyModel>();
+            TripCache = new Dictionary<string, FrequencyModel>();
             for (int i = 0; i < strs.Length; i += 1)
             {
 
@@ -26,7 +26,7 @@ namespace BTFindTree
                 {
                     MaxLength = strs[i].Length;
                 }
-                TripModels[strs[i]] = new FrequencyModel(strs[i]);
+                TripCache[strs[i]] = new FrequencyModel(strs[i]);
 
             }
             Values = new List<string>(strs);
@@ -35,30 +35,33 @@ namespace BTFindTree
 
 
 
-        public void GetSingleCharFrequency()
+        private void GetSingleCharFrequency()
         {
 
             //统计每个字符在当前位置出现的次数
             for (int i = 0; i < MaxLength; i += 1)
             {
 
+                //遍历trip字符缓存
                 Dictionary<char, int> charsCache = new Dictionary<char, int>();
-                foreach (var item in TripModels)
+                foreach (var item in TripCache)
                 {
-
+                    //如果当前字符串的长度大于索引
                     if (item.Key.Length > i)
                     {
 
+                        //获取字符
                         var tempChar = item.Key[i];
                         if (charsCache.ContainsKey(tempChar))
                         {
-
+                            //如果缓存里已经存在了字符，那么缓存计数+1
                             charsCache[tempChar] += 1;
 
                         }
                         else
                         {
 
+                            //否则设置缓存字符，计数默认为1
                             charsCache[tempChar] = 1;
 
                         }
@@ -68,27 +71,22 @@ namespace BTFindTree
                 }
 
                 //把之前位置对应的字符出现的频率，写入缓存中
-                foreach (var itemChar in charsCache)
+                //再一次遍历trip字符缓存
+                foreach (var item in TripCache)
                 {
 
-                    foreach (var item in TripModels)
+                    //如果当前字符串的长度大于索引
+                    if (item.Key.Length > i)
                     {
 
-                        if (item.Key.Length > i)
+                        //设置当前层字符的匹配频次
+                        int matchCount = charsCache[item.Key[i]];
+                        item.Value.RepeateCache[i] = matchCount;
+                        //记录频次最大值
+                        if (MaxMatchCount < matchCount)
                         {
 
-                            if (item.Key[i] == itemChar.Key)
-                            {
-
-                                item.Value.RepeateCache[i] = itemChar.Value;
-                                if (MaxMatchCount < itemChar.Value)
-                                {
-
-                                    MaxMatchCount = itemChar.Value;
-
-                                }
-
-                            }
+                            MaxMatchCount = matchCount;
 
                         }
 
@@ -97,19 +95,6 @@ namespace BTFindTree
                 }
 
             }
-
-
-            //foreach (var item in TripModels)
-            //{
-
-            //    Console.WriteLine(item.Value.Value);
-            //    for (int i = 0; i < item.Value.RepeateCache.Count; i++)
-            //    {
-            //        Console.WriteLine("\t 字符：{0}  \t出现{1}次", item.Value.Value[i], item.Value[i]);
-            //    }
-
-            //}
-
 
         }
 
@@ -130,74 +115,93 @@ namespace BTFindTree
         public void GetAllWordsFrequency()
         {
 
+            //将权值设置为最大
             int priority = int.MaxValue;
+
+            //从1次开始匹配一直到最高频次
             for (int i = 1; i <= MaxMatchCount; i++)
             {
 
-                foreach (var item in TripModels)
+                //循环遍历trip缓存
+                foreach (var item in TripCache)
                 {
 
                     //找到连续的相同位置的字符串 i 是能匹配到的频次
-                    var list = item.Value.GetByMatchCount(i + 1);
-                    //Console.WriteLine();
-                    //Console.Write("字符串 ");
-                    //Console.ForegroundColor = ConsoleColor.Magenta;
-                    //Console.Write(item.Key);
-                    //Console.ForegroundColor = ConsoleColor.DarkGray;
-                    //Console.WriteLine(" 分析结果：");
-                    //Console.WriteLine();
+                    var list = item.Value.GetByFrequency(i);
 
 
+                    //设置当前偏移量
                     int offset = 0;
                     List<RepeateModel> modelCache = new List<RepeateModel>();
                     foreach (var itemList in list)
                     {
-                        if (i==6)
-                        {
 
-                        }
                         //记录上一次偏移量，如果有间隔，则添加间隔
+                        //如果当前偏移量和连续节点的偏移量不相等
+                        //说明连续节点有了跳跃
+                        //  x x x x x x x - - - - - - - - - index - - - - -
+                        //  | ____offset____|_GetFromSpace__|         |__length__|
+                        //
                         if (offset != itemList.StartIndex)
                         {
+                            //搜集中间被跳过字符串的分割策略
+                            //
                             modelCache.AddRange(GetFromSpace(itemList.StartIndex, ref offset));
                         }
 
-                        offset = itemList.StartIndex + itemList.Length;
+
+                        //获取这部分字符
                         var str = item.Key.Substring(itemList.StartIndex, itemList.Length);
 
 
                         //进行高频比对，先找到高频为4出现最多的，如果再中间，则两头比对
                         //结果应该是当前比对字串的分割集合
+                        //针对上部分字符，进行高频分解
                         var models = GetHighFrequency(str, itemList.StartIndex);
                         for (int j = 0; j < models.Count; j++)
                         {
 
+                            //因为是结构体，所以要单独拿出来操作
                             var temp = models[j];
-                            if (models[j].MatchCount > 0)
-                            {
-
-                                //增加偏移量，使用当前的偏移量
-                                temp.StartIndex += itemList.StartIndex;
-                                modelCache.Add(temp);
-
-                            }
+                            //增加偏移量，使用当前的偏移量
+                            temp.StartIndex += offset;
+                            //添加结构体
+                            modelCache.Add(temp);
 
                         }
+
+
+                        //偏移量继续递增，跳到当前连续节点的后面
+                        //  x x x x x x x x x x x x x x x x x index - - - - -
+                        //                                                                 |__length__|
+                        //  |_____________________________offset___________________________________|
+                        //  
+                        offset += itemList.Length;
 
                     }
 
 
+                    //偏移量继续递增，跳到当前连续节点的后面
+                    //  x x x x x x x x x x x x x x x x x xxxxx - - - - -
+                    //  |_____________________________offset____________________|
+                    //  |_____________________________MaxLength___________________________|
                     modelCache.AddRange(GetFromSpace(MaxLength, ref offset));
+
+                    //获取最小权
                     int result = GetPriority(modelCache);
+                    //选取最小权分配节点
                     if (priority > result)
                     {
+
                         priority = result;
                         PriorityCache = modelCache;
+
                     }
 
                 }
 
             }
+
         }
 
 
@@ -217,79 +221,140 @@ namespace BTFindTree
 
 
 
-
+        /*            n1                                  n2
+         *        /    \    \                          /     \ 
+         *      /       \     \                      /         \
+         *   n3e      n4     d4               n5         n6e
+         *                |       /  \               /\
+         *             n7e  n8e  n9e   n10e  n11e
+         *             
+         *   n：节点
+         *   d:   无数据的空白节点
+         *   e:  末尾
+         */ 
         private static List<PriorityTreeModel> GetTrees(IEnumerable<string> strs, List<RepeateModel> models, int deepth = 0)
         {
 
+            //创建字符串集合缓存
             HashSet<string> cache = new HashSet<string>(strs);
+            //创建叶节点集合
             List<PriorityTreeModel> lists = new List<PriorityTreeModel>();
+
+            //如果当前深度小于集合数量
             if (deepth < models.Count)
             {
 
+                //创建字符映射叶子节点
                 Dictionary<string, PriorityTreeModel> sets = new Dictionary<string, PriorityTreeModel>();
+                //创建叶节点映射全字符串
                 Dictionary<PriorityTreeModel, List<string>> dict = new Dictionary<PriorityTreeModel, List<string>>();
-                //找到当前的拾取节点
+
+
+                //找到当前层的分割节点
                 var model = models[deepth];
-                //遍历字符串
+                //遍历字符串，起初为传入构造函数的集合
                 foreach (var item in strs)
                 {
 
-                    //如果当前拾取起点已经超过字符串的最大值则跳过
+                    //如果分割起点 小于 字符串的最大值
                     if (item.Length > model.StartIndex)
                     {
 
                         string node;
-                        //如果拾取长度大于字符串的总长度则只截取字符串剩余的部分
-                        if (item.Length <= model.StartIndex + model.Length)
+
+                        //如果 拾取长度 大等于 字符串的总长度 
+                        //则只截取字符串剩余的部分
+                        if (item.Length < model.StartIndex + model.Length)
                         {
 
+                            //截取当前剩余字串
                             node = item.Substring(model.StartIndex, item.Length - model.StartIndex);
-                            //生成截取节点
+
+
+                            //创建一个方案节点
+                            PriorityTreeModel priority = new PriorityTreeModel
+                            {
+                                Value = node,
+                                FullValue = item,
+                                Offset = model.StartIndex,
+                                Length = model.Length
+                            };
+
+
+                            //添加到叶节点集合中
+                            lists.Add(priority);
+                            //创建与该方案相关的字串集合
+                            dict[priority] = new List<string>();
+                            //相同的截取字符串和方案节点添加到缓存
+                            sets[node] = priority;
+
+                        }
+                        else if (item.Length == model.StartIndex + model.Length)
+                        {
+
+                            //截取当前剩余字串
+                            node = item.Substring(model.StartIndex, model.Length);
                             if (!sets.ContainsKey(node))
                             {
 
-                                PriorityTreeModel priority = new PriorityTreeModel();
-                                dict[priority] = new List<string>();
-                                priority.Value = node;
-                                priority.FullValue = item;
-                                priority.Offset = model.StartIndex;
-                                priority.Length = model.Length;
-                                if (deepth != models.Count - 1)
+                                //仅仅是匹配类型的节点
+                                PriorityTreeModel priority = new PriorityTreeModel
                                 {
-                                    priority.Next.Add(new PriorityTreeModel()
-                                    {
-                                        Value = default,
-                                        FullValue = item
-                                    });
-                                }
+                                    Value = node,
+                                    Offset = model.StartIndex,
+                                    Length = model.Length
+                                };
+
+
+
+                                //添加到叶节点集合中
                                 lists.Add(priority);
+                                //创建与该方案相关的字串集合
+                                dict[priority] = new List<string>();
+                                //相同的截取字符串和方案节点添加到缓存
                                 sets[node] = priority;
 
                             }
+
+                            //添加他的子节点为结束节点
+                            sets[node].Next.Add(new PriorityTreeModel()
+                            {
+
+                                FullValue = item,
+                                IsZeroNode = true
+
+                            });
 
                         }
                         else
                         {
 
+                            //如果 拾取长度 小于 字符串的总长度 ，说明可以充分截取
                             node = item.Substring(model.StartIndex, model.Length);
-                            //生成截取节点
+
+                            //如果缓存中还没有这个截取方案
+                            //则生成截取方案节点
                             if (!sets.ContainsKey(node))
                             {
 
-                                PriorityTreeModel priority = new PriorityTreeModel();
-                                dict[priority] = new List<string>();
-                                priority.Value = node;
-                                priority.FullValue = item;
-                                priority.Offset = model.StartIndex;
-                                priority.Length = model.Length;
+                                //仅仅是匹配类型的节点
+                                PriorityTreeModel priority = new PriorityTreeModel
+                                {
+                                    Value = node,
+                                    Offset = model.StartIndex,
+                                    Length = model.Length
+                                };
+
+                                //添加到叶节点集合中
                                 lists.Add(priority);
+                                //创建与该方案相关的字串集合
+                                dict[priority] = new List<string>();
+                                //相同的截取字符串和方案节点添加到缓存
                                 sets[node] = priority;
 
                             }
 
                         }
-
-
 
                         dict[sets[node]].Add(item);
                         cache.Remove(item);
@@ -306,7 +371,18 @@ namespace BTFindTree
 
                 }
 
-                lists.AddRange(GetTrees(cache, models, nextDeepth));
+                //如果此次有未参与处理的字串，那么在下一层时将进行处理
+                if (cache.Count > 0)
+                {
+
+                    PriorityTreeModel priority = new PriorityTreeModel
+                    {
+                        IsDefaultNode = true
+                    };
+                    priority.Next.AddRange(GetTrees(cache, models, nextDeepth));
+                    lists.Add(priority);
+
+                }
 
             }
 
@@ -316,55 +392,60 @@ namespace BTFindTree
 
 
 
-        private static List<RepeateModel> GetFromSpace(int index, ref int offset)
+        /// <summary>
+        /// 搜集offset到index中间的分割策略
+        /// </summary>
+        /// <param name="target">目标偏移量</param>
+        /// <param name="offset">当前偏移量</param>
+        /// <returns></returns>
+        private static List<RepeateModel> GetFromSpace(int target, ref int offset)
         {
 
             var list = new List<RepeateModel>();
-            if (offset < index)
+
+            //如果当前偏移量比前一偏移量多4个长度，那么以4个增长点上增
+            while (target - offset > 3)
             {
 
-                //如果当前偏移量比前一偏移量多3个长度
-                while (index - offset > 3)
+                RepeateModel model = new RepeateModel
                 {
-
-                    RepeateModel model = new RepeateModel
-                    {
-                        StartIndex = offset,
-                        Length = 4
-                    };
-                    offset += 4;
-                    list.Add(model);
-
-                }
-
-
-                //如果小玉3个长度
-                if (offset != index)
-                {
-
-                    RepeateModel model2 = new RepeateModel();
-                    if (index - offset == 3)
-                    {
-
-                        model2.StartIndex = offset - 1;
-                        model2.Length = 4;
-
-
-                    }
-                    else
-                    {
-
-                        model2.StartIndex = offset;
-                        model2.Length = index - offset;
-
-                    }
-                    //偏移量增加
-                    offset = index;
-                    list.Add(model2);
-
-                }
+                    StartIndex = offset,
+                    Length = 4
+                };
+                offset += 4;
+                list.Add(model);
 
             }
+
+
+            //如果处理完之后偏移量仍然有剩余
+            if (offset != target)
+            {
+
+                RepeateModel model2 = new RepeateModel();
+                //如果相差3个长度
+                if (target - offset == 3)
+                {
+
+                    //提前借一位，并取4个长度
+                    model2.StartIndex = offset - 1;
+                    model2.Length = 4;
+
+                }
+                else
+                {
+
+                    model2.StartIndex = offset;
+                    model2.Length = target - offset;
+
+                }
+                //偏移量增加
+                list.Add(model2);
+                //最后处理完应该offset = target;
+                offset = target;
+
+            }
+
             return list;
         }
 
@@ -374,39 +455,55 @@ namespace BTFindTree
         private int GetPriority(List<RepeateModel> models)
         {
 
+            //默认最小权为0
             int priority = 0;
 
+            //遍历分割节点
             foreach (var model in models)
             {
+
+                //匹配字符串缓存
                 HashSet<string> sets = new HashSet<string>();
-                foreach (var item in TripModels)
+                foreach (var item in TripCache)
                 {
+
                     string temp;
+                    //获取当前节点到当前字符串最后一个字符的距离
                     int diff = item.Key.Length - model.StartIndex;
+                    if (diff < 0)
+                    {
+                        //如果分割偏移量已经超过当前字符串的长度
+                        //则进行下一个循环
+                        continue;
+
+                    }
                     if (diff < model.Length)
                     {
-                        if (diff > 0)
-                        {
-                            temp = item.Key.Substring(model.StartIndex, diff);
-                        }
-                        else
-                        {
-                            continue;
-                        }
+
+                        //如果差值在分割长度的范围内
+                        //获取剩余的分割字符
+                        temp = item.Key.Substring(model.StartIndex, diff);
 
                     }
                     else
                     {
+
+                        //获取当前的分割字符
                         temp = item.Key.Substring(model.StartIndex, model.Length);
 
                     }
+
+                    //如果分割字符不在缓存里
                     if (!sets.Contains(temp))
                     {
+                        //权值+1
                         priority += 1;
                         sets.Add(temp);
+
                     }
 
                 }
+
             }
 
             return priority;
@@ -415,182 +512,133 @@ namespace BTFindTree
 
 
 
-
-        private List<RepeateModel> GetHighFrequency(string str, int index, int offset = 0)
+        /// <summary>
+        /// 对一段字符串进行高频解析
+        /// </summary>
+        /// <param name="str">字符串</param>
+        /// <param name="index">字符串之前的偏移量</param>
+        /// <param name="offset">当前偏移量</param>
+        /// <returns></returns>
+        private List<RepeateModel> GetHighFrequency(string str, int index, int offset = 0, MatchOrder order = MatchOrder.None, string other = default)
         {
 
             List<RepeateModel> result = new List<RepeateModel>();
             RepeateModel model;
 
-            if (str.Length == 1)
+            if (str.Length < 3 || str.Length == 4)
             {
 
-                model = GetHightFrequencyByIndex(str, index, 1);
-
-            }else if (str.Length == 2)
-            {
-
-                model = GetHightFrequencyByIndex(str, index, 2);
-
-            }
-            else
-            {
-
-                model = GetHightFrequencyByIndex(str, index, 4);
-
-            }
-
-
-            int preIndex = model.StartIndex;
-            model.StartIndex += offset;
-
-
-            //Console.WriteLine("{3}类型，偏移量为：{2}，频次最高为：{0}，对应的字符串：{1}", model.MatchCount, source.Substring(model.StartIndex, 4), model.StartIndex, type);
-            if (str.Length == model.Length || model.Length == 0)
-            {
-
+                model = GetFrequencyByOffsetAndIndex(str, index, str.Length);
+                model.StartIndex += offset;
                 result.Add(model);
-                return result;
 
             }
-            else
+            else if (str.Length == 3)
             {
 
-                if (preIndex != 0)
+                // 3个字符分割成 2 + 1 分别求权值
+                int tempPriority1 = 0;
+                var model1 = GetFrequencyByOffsetAndIndex(str.Substring(0, 2), index, 2);
+                tempPriority1 += model1.MatchCount;
+                var model2 = GetFrequencyByOffsetAndIndex(str.Substring(2, 1), index + 2, 1);
+                tempPriority1 += model2.MatchCount;
+
+
+                //3个字符分割成 1 + 2 分别求权值
+                int tempPriority2 = 0;
+                var model3 = GetFrequencyByOffsetAndIndex(str.Substring(0, 1), index, 1);
+                tempPriority2 += model3.MatchCount;
+                var model4 = GetFrequencyByOffsetAndIndex(str.Substring(1, 2), index + 1, 2);
+                tempPriority2 += model4.MatchCount;
+
+
+                //3个字符借位求权
+                int tempPriority3 = 0;
+                if (order == MatchOrder.LeftToRight)
+                {
+                    model = GetFrequencyByOffsetAndIndex(other, index, 4);
+                    tempPriority3 += model.MatchCount;
+                }
+                else if (order == MatchOrder.RightToLeft)
+                {
+                    model = GetFrequencyByOffsetAndIndex(other, index, 4);
+                    tempPriority3 += model.MatchCount;
+                }
+
+
+                //匹配权比较
+                if (tempPriority1 >= tempPriority2)
                 {
 
-                    var leftStr = str.Substring(0, preIndex);
-                    if (leftStr != default)
+                    if (tempPriority1 >= tempPriority3)
                     {
+                        model1.StartIndex += offset;
+                        result.Add(model1);
+                        model2.StartIndex += offset + 2;
+                        result.Add(model2);
+                    }
+                    else
+                    {
+                        model3.StartIndex += offset - 1;
+                        result.Add(model3);
+                    }
 
-                        if (leftStr.Length == 1)
-                        {
+                }
+                else
+                {
 
-                            leftStr = str.Substring(0, preIndex + 1);
-                            var leftModel1 = GetHightFrequencyByIndex(leftStr, index, 1, true, MatchOrder.LeftToRight);
-                            var leftModel2 = GetHightFrequencyByIndex(leftStr, index, 2, true, MatchOrder.LeftToRight);
-
-
-                            if (leftModel1.MatchCount < leftModel2.MatchCount)
-                            {
-
-                                leftModel1 = leftModel2;
-
-                            }
-                            leftModel1.StartIndex += offset;
-                            result.Add(leftModel1);
-
-                        }
-                        else if (leftStr.Length == 2)
-                        {
-
-                            var leftModel2 = GetHightFrequencyByIndex(leftStr, index, 2, true, MatchOrder.LeftToRight);
-                            leftModel2.StartIndex += offset;
-                            result.Add(leftModel2);
-
-                        }
-                        else if (leftStr.Length == 3)
-                        {
-
-                            leftStr = str.Substring(0, preIndex + 1);
-                            var leftModel1 = GetHightFrequencyByIndex(leftStr, index, 2, true, MatchOrder.LeftToRight);
-                            var leftModel2 = GetHightFrequencyByIndex(leftStr, index, 4, true, MatchOrder.LeftToRight);
-
-                            if (leftModel1.MatchCount < leftModel2.MatchCount)
-                            {
-
-                                leftModel1 = leftModel2;
-
-                            }
-                            leftModel1.StartIndex += offset;
-                            result.Add(leftModel1);
-
-                        }
-                        else
-                        {
-
-                            var tempResult = GetHighFrequency(leftStr, index, 0);
-                            for (int i = 0; i < tempResult.Count; i++)
-                            {
-                                var temp = tempResult[i];
-                                temp.StartIndex += preIndex;
-                                result.Add(temp);
-                            }
-
-                        }
+                    if (tempPriority2 >= tempPriority3)
+                    {
+                        model3.StartIndex += offset;
+                        result.Add(model3);
+                        model4.StartIndex += offset + 1;
+                        result.Add(model4);
+                    }
+                    else
+                    {
+                        model3.StartIndex += offset - 1;
+                        result.Add(model3);
                     }
 
                 }
 
+            }
+            else
+            {
+
+                //如果是4个或者4个以上的, 那么找到4个字符为一组的，匹配最多的那组
+                model = GetMaxFrequencyModel(str, index);
+                model.StartIndex += offset;
                 result.Add(model);
 
-                int tempIndex = preIndex + model.Length;
-                if (tempIndex < str.Length)
+                //如果该组左侧有字符，那么递归处理左侧字符
+                if (model.StartIndex > 0)
+                {
+                    var source = str.Substring(0, model.StartIndex);
+                    if (source.Length == 3)
+                    {
+                        result.AddRange(GetHighFrequency(source, index, offset, MatchOrder.LeftToRight, str.Substring(0, 4)));
+                    }
+                    else
+                    {
+                        result.AddRange(GetHighFrequency(source, index, offset));
+                    }
+
+                }
+
+                //如果该组右侧有字符，那么递归处理右侧字符
+                if (model.StartIndex + 4 < str.Length)
                 {
 
-                    int RIGHTINDEX = index + tempIndex;
-                    var rightStr = str.Substring(tempIndex, str.Length - tempIndex);
-                    if (rightStr != default)
+                    int tempOffset = model.StartIndex + 4;
+                    var source = str.Substring(model.StartIndex, str.Length - tempOffset);
+                    if (source.Length == 3)
                     {
-
-                        if (rightStr.Length == 1)
-                        {
-
-                            rightStr = str.Substring(tempIndex - 1, str.Length - tempIndex + 1);
-                            RIGHTINDEX -= 1;
-                            var rightModel1 = GetHightFrequencyByIndex(rightStr, RIGHTINDEX, 1, true, MatchOrder.RightToLeft);
-                            var rightModel2 = GetHightFrequencyByIndex(rightStr, RIGHTINDEX, 2, true, MatchOrder.RightToLeft);
-
-
-                            if (rightModel1.MatchCount < rightModel2.MatchCount)
-                            {
-
-                                rightModel1 = rightModel2;
-
-                            }
-                            rightModel1.StartIndex += tempIndex - 1;
-                            result.Add(rightModel1);
-
-                        }
-                        else if (rightStr.Length == 2)
-                        {
-
-                            var rightModel1 = GetHightFrequencyByIndex(rightStr, RIGHTINDEX, 2, true, MatchOrder.RightToLeft);
-                            rightModel1.StartIndex += tempIndex;
-                            result.Add(rightModel1);
-
-                        }
-                        else if (rightStr.Length == 3)
-                        {
-
-                            rightStr = str.Substring(tempIndex - 1, str.Length - tempIndex + 1);
-                            RIGHTINDEX -= 1;
-                            var rightModel1 = GetHightFrequencyByIndex(rightStr, RIGHTINDEX, 4, true, MatchOrder.RightToLeft);
-                            var rightModel2 = GetHightFrequencyByIndex(rightStr, RIGHTINDEX, 2, true, MatchOrder.RightToLeft);
-
-
-                            if (rightModel1.MatchCount < rightModel2.MatchCount)
-                            {
-
-                                rightModel1 = rightModel2;
-
-                            }
-                            rightModel1.StartIndex += tempIndex - 1;
-                            result.Add(rightModel1);
-
-                        }
-                        else
-                        {
-
-                            var tempResult = GetHighFrequency(rightStr, RIGHTINDEX, 0);
-                            for (int i = 0; i < tempResult.Count; i++)
-                            {
-                                var temp = tempResult[i];
-                                temp.StartIndex += tempIndex;
-                                result.Add(temp);
-                            }
-
-                        }
+                        result.AddRange(GetHighFrequency(source, index, tempOffset + offset, MatchOrder.RightToLeft, str.Substring(model.StartIndex + 3, 4)));
+                    }
+                    else
+                    {
+                        result.AddRange(GetHighFrequency(source, index, tempOffset + offset));
                     }
 
                 }
@@ -601,127 +649,82 @@ namespace BTFindTree
         }
 
 
-
-
-        private RepeateModel GetHightFrequencyByIndex(string str, int index, int length = 4, bool once = false, MatchOrder order = MatchOrder.LeftToRight)
+        private RepeateModel GetFrequencyByOffsetAndIndex(string str, int index, int length)
         {
-
-            RepeateModel model = default;
-            if (order == MatchOrder.LeftToRight)
+            //如果是1位，则直接取1位
+            var model = new RepeateModel()
             {
 
-                int totle = str.Length - length;
-                if (once)
-                {
+                Length = length,
+                StartIndex = 0
 
-                    totle = 0;
+            };
 
-                }
-
-
-                if (totle<0)
-                {
-                    model.Length = length;
-                    model.StartIndex = 0;
-                }
-
-
-                for (int i = 0; i <= totle; i++)
-                {
-
-                    var tempStr = str.Substring(i, length);
-                    int frequency = 0;
-                    int offset = index + i;
-
-
-                    foreach (var item in TripModels)
-                    {
-
-                        if (offset + length <= item.Key.Length)
-                        {
-
-                            var matchStr = item.Key.Substring(offset, length);
-                            if (tempStr == matchStr)
-                            {
-
-                                frequency += 1;
-
-                            }
-
-                        }
-
-                    }
-
-
-                    if (frequency > 0)
-                    {
-
-                        model = new RepeateModel
-                        {
-                            StartIndex = i,
-                            Length = length,
-                            MatchCount = frequency
-                        };
-                        return model;
-
-                    }
-
-                }
-
-            }
-            else
+            foreach (var item in TripCache)
             {
 
-                int total = str.Length - length;
-                int start = 0;
-                if (once)
+                if (index + length <= item.Key.Length)
                 {
 
-                    start = total;
-
-                }
-
-
-                for (int i = total; i >= start; i -= 1)
-                {
-
-                    var tempStr = str.Substring(i, length);
-                    int frequency = 0;
-                    int offset = index + i;
-                    foreach (var item in TripModels)
+                    var matchStr = item.Key.Substring(index, length);
+                    if (str == matchStr)
                     {
 
-                        if (offset + length <= item.Key.Length)
-                        {
-                            var matchStr = item.Key.Substring(offset, length);
-                            if (tempStr == matchStr)
-                            {
-
-                                frequency += 1;
-
-                            }
-                        }
-
-                    }
-
-
-                    if (frequency > 0)
-                    {
-
-                        model = new RepeateModel
-                        {
-                            StartIndex = i,
-                            Length = length,
-                            MatchCount = frequency
-                        };
-                        return model;
+                        model.MatchCount += 1;
 
                     }
 
                 }
+
             }
             return model;
         }
+
+
+        private RepeateModel GetMaxFrequencyModel(string str, int index)
+        {
+
+            int frequency = 0;
+            int result = 0;
+            for (int i = 0; i < str.Length - 4; i += 1)
+            {
+                string temp = str.Substring(i, 4);
+                int tempFrequency = 0;
+                foreach (var item in TripCache)
+                {
+
+                    if (item.Key.Length > index + i + 4)
+                    {
+
+                        string matchStr = item.Key.Substring(index + i, 4);
+                        if (temp == matchStr)
+                        {
+                            tempFrequency += 1;
+
+                        }
+
+                    }
+
+                }
+                if (frequency < tempFrequency)
+                {
+                    frequency = tempFrequency;
+                    result = i;
+                }
+
+            }
+
+            return new RepeateModel
+            {
+                MatchCount = frequency,
+                StartIndex = result,
+                Length = 4
+            };
+
+
+        }
+
+
     }
 
 }

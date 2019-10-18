@@ -19,6 +19,8 @@ namespace BTFindTree.Template.PrecisionTreeTemplate.Model
         public string FullValue;
         public int Length;
         public int Offset;
+        public bool IsDefaultNode;
+        public bool IsZeroNode;
 
     }
 

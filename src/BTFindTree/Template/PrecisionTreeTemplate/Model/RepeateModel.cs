@@ -26,6 +26,7 @@ namespace BTFindTree.Template.PrecisionTreeTemplate.Model
 
     public enum MatchOrder
     {
+        None,
         LeftToRight,
         RightToLeft
     }

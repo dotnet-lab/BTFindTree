@@ -8,7 +8,7 @@ namespace BTFindTree
     public class BTFTemplate
     {
 
-        public static string GetHashBTFScript<T>(IDictionary<T, string> pairs,string parameterName = "arg")
+        public static string GetHashBTFScript<T>(IDictionary<T, string> pairs, string parameterName = "arg")
         {
 
             StringBuilder scriptBuilder = new StringBuilder();
@@ -158,110 +158,86 @@ namespace BTFindTree
         }
 
 
-        private static string ForeachPrecisionTree(List<PriorityTreeModel> nodes, IDictionary<string, string> parirs, int deepth = 0)
+
+
+        /*            n1                                  n2
+         *        /    \    \                          /     \ 
+         *      /       \     \                      /         \
+         *   n3e      n4     d4               n5         n6e
+         *                |       /  \               /\
+         *             n7e  n8e  n9e   n10e  n11e
+         *             
+         *   n：节点
+         *   d:   无数据的空白节点
+         *   e:  末尾
+         */
+        private static string ForeachPrecisionTree(List<PriorityTreeModel> nodes, IDictionary<string, string> parirs)
         {
 
-            if (nodes == default)
-            {
-                return default;
-            }
 
-            StringBuilder builder = new StringBuilder();
-            StringBuilder append = new StringBuilder();
-            int deep = deepth + 1;
-            if (nodes.Count == 1)
+            StringBuilder switchBuilder = new StringBuilder();
+            StringBuilder caseBuilder = new StringBuilder();
+            StringBuilder defaultBuilder = new StringBuilder();
+
+            for (int i = 0; i < nodes.Count; i += 1)
             {
 
-                var node = nodes[0];
-                if (node.Value != default)
+                var node = nodes[i];
+                if (node.FullValue!=null)
+                {
+                    //nxe节点 末尾节点
+                    //if (node.IsZeroNode)
+                    //{
+                      //  caseBuilder.AppendLine($"case 0:");
+                    //}
+                   
+                    var returnStr = parirs[node.FullValue];
+                    caseBuilder.AppendLine($"{returnStr}");
+                    //if (!returnStr.Contains("return "))
+                    //{
+                    //    caseBuilder.AppendLine("break;");
+                    //}
+
+                }
+                else if (node.IsDefaultNode)
+                {
+
+                    //默认节点
+                    if (node.Next.Count!=0)
+                    {
+
+                        defaultBuilder.AppendLine($"default:");
+                        defaultBuilder.AppendLine(ForeachPrecisionTree(node.Next, parirs));
+                        defaultBuilder.AppendLine("break;");
+
+                    }
+
+                }
+                else
                 {
 
                     var (compareBuilder, code) = node.Value.GetCompareBuilder(node.Length, node.Offset);
-                    builder.AppendLine($"if({compareBuilder} == {code}){{");
-                    if (node.Next == default || node.Next.Count == 0)
+                    if (switchBuilder.Length == 0)
                     {
-
-                        builder.AppendLine($"{parirs[node.FullValue]}");
-
+                        switchBuilder.AppendLine($"switch({compareBuilder}){{");
                     }
-                    else
-                    {
-
-                        builder.AppendLine(ForeachPrecisionTree(node.Next, parirs, deep));
-
-                    }
-                    builder.Append('}');
+                    caseBuilder.AppendLine($"case {code}:");
+                    caseBuilder.AppendLine(ForeachPrecisionTree(node.Next, parirs));
+                    caseBuilder.AppendLine("break;");
 
                 }
-
-
+                
             }
-            else
+
+            var result = new StringBuilder();
+            result.Append(switchBuilder);
+            result.Append(caseBuilder);
+            result.Append(defaultBuilder);
+            if (switchBuilder.Length>0)
             {
-
-                bool hashAppendSwitch = false;
-
-
-                foreach (var item in nodes)
-                {
-                    if (item.Value == default)
-                    {
-
-                        append.AppendLine($"case 0:");
-                        var returnStr = parirs[item.FullValue];
-                        append.AppendLine($"{returnStr}");
-                        if (!returnStr.Contains("return "))
-                        {
-                            append.AppendLine("break;");
-                        }
-
-                    }
-                    else
-                    {
-
-                        (StringBuilder compareBuilder, ulong code) = item.Value.GetCompareBuilder(item.Length,item.Offset);
-                        if (!hashAppendSwitch)
-                        {
-                            builder.AppendLine($"switch({compareBuilder}){{");
-                            hashAppendSwitch = true;
-                        }
-
-
-                        builder.AppendLine($"case {code}:");
-                        if (item.Next == default || item.Next.Count == 0)
-                        {
-
-                            var returnStr = parirs[item.FullValue];
-                            builder.AppendLine($"{returnStr}");
-                            if (!returnStr.Contains("return "))
-                            {
-                                builder.AppendLine("break;");
-                            }
-
-                        }
-                        else
-                        {
-
-                            if (item.Next.Count == 1 && item.Next[0].Value==default)
-                            {
-                                builder.AppendLine($"{parirs[item.Next[0].FullValue]}");
-                            }
-                            else
-                            {
-                                builder.AppendLine(ForeachPrecisionTree(item.Next, parirs, deep));
-                                builder.AppendLine("break;");
-                            }
-
-                        }
-                        
-                    }
-
-
-                }
-                builder.Append(append);
-                builder.Append('}');
+                result.Append('}');
             }
-            return builder.ToString();
+            return result.ToString();
 
         }
 

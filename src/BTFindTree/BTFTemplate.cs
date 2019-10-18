@@ -160,16 +160,16 @@ namespace BTFindTree
 
 
 
-        /*            n1                                  n2
-         *        /    \    \                          /     \ 
-         *      /       \     \                      /         \
-         *   n3e        n4     d4                   n5         n6e
-         *              |      /  \                /\
-         *             n7e   n8e  n9e           n10e  n11e
+        /*            n1                                   n2
+         *        /    \      \                          /     \ 
+         *       /      \      \                        /       \
+         *     n3e      n4      d4                     n5         n6e
+         *               |     /  \                    /\
+         *              n7e  n8e  n9e               n10e  n11e
          *             
          *   n：节点
-         *   d:   无数据的空白节点
-         *   e:  末尾
+         *   d: 无数据的空白节点
+         *   e: 末尾
          */
         private static string ForeachPrecisionTree(List<PriorityTreeModel> nodes, IDictionary<string, string> parirs)
         {

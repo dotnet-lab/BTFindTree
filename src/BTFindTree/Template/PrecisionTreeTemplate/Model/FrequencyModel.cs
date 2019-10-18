@@ -10,8 +10,8 @@ namespace BTFindTree.Template.PrecisionTreeTemplate.Model
         public string Value;
         public int Length;
         /*   
-         *    char               :   a - b - c - d
-         *    index              :   0 - 1 - 2 - 3
+         *    char         :   a - b - c - d
+         *    index        :   0 - 1 - 2 - 3
          *    Frequency    :   1 - 1 - 3 - 4
          */
         public int[] RepeateCache;

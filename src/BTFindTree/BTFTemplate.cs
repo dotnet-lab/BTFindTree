@@ -67,7 +67,6 @@ namespace BTFindTree
             StringBuilder scriptBuilder = new StringBuilder();
 
 
-
             if (tree.Value != default)
             {
 

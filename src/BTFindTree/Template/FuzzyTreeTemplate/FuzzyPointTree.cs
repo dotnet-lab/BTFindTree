@@ -35,7 +35,7 @@ namespace BTFindTree
             Layer = layer;
             PointCode = pCode;
 
-            if (values.Count == 1)
+            if (values.Count == 1 && layer != 0)
             {
 
                 //如果递归集合中只剩一个元素，那么认为它的路径已经确认。

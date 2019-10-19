@@ -88,7 +88,7 @@ namespace BTFindTree
 
                 //value==default不为空则Nodes定有值
                 //如果是单节点，则直接优化掉，节点层数+1
-                while (node.Nodes.Count == 1)
+                while (node.Nodes != default && node.Nodes.Count == 1)
                 {
                     node = node.Nodes[0];
                     tree.Layer += 1;
@@ -105,29 +105,41 @@ namespace BTFindTree
 
                 //一个集合必然已switch开头
                 scriptBuilder.Append($"switch (*({FuzzyPointTree.OfferType}*)(c+{FuzzyPointTree.OfferSet * tree.Layer})){{");
-                //此时Nodes一定不是单节点，而是具有兄弟的节点
-                foreach (var item in tree.Nodes)
+                if (tree.Nodes == default)
                 {
 
-                    //如果当前子节点不是叶节点
-                    if (item.Value == default)
+                    scriptBuilder.Append(ForeachFuzzyTree(node));
+
+                }
+                else
+                {
+
+                    //此时Nodes一定不是单节点，而是具有兄弟的节点
+                    foreach (var item in tree.Nodes)
                     {
 
-                        //证明当前节点分支一定还需要再判断
-                        scriptBuilder.AppendLine($"case {item.PointCode}:");
-                        scriptBuilder.Append(ForeachFuzzyTree(item));
-                        scriptBuilder.Append("break;");
+                        //如果当前子节点不是叶节点
+                        if (item.Value == default)
+                        {
 
-                    }
-                    else
-                    {
+                            //证明当前节点分支一定还需要再判断
+                            scriptBuilder.AppendLine($"case {item.PointCode}:");
+                            scriptBuilder.Append(ForeachFuzzyTree(item));
+                            scriptBuilder.Append("break;");
 
-                        //叶节点再次交给递归处理
-                        scriptBuilder.Append(ForeachFuzzyTree(item));
+                        }
+                        else
+                        {
+
+                            //叶节点再次交给递归处理
+                            scriptBuilder.Append(ForeachFuzzyTree(item));
+
+                        }
 
                     }
 
                 }
+                
                 scriptBuilder.Append('}');
 
             }

@@ -23,6 +23,7 @@ namespace BenchmarkTest
 
             Dict = new Dictionary<string, int>();
             Dict["NullClass"] = 0;
+            Dict["Test2"] = 1;
             Dict["abab1123"] = 0;
             Dict["abab1123c"] = 1;
             Dict["abab1123d"] = 2;

@@ -212,7 +212,10 @@ namespace BTFindTree
 
             GetSingleCharFrequency();
             GetAllWordsFrequency();
-            var list = new List<RepeateModel>(from result in PriorityCache
+            var temp = from result in PriorityCache
+                       orderby result.StartIndex ascending
+                       select result;
+            var list = new List<RepeateModel>(from result in temp
                                               orderby result.MatchCount descending
                                               select result);
             return GetTrees(Values, list);
@@ -354,7 +357,6 @@ namespace BTFindTree
                             }
 
                             
-
                         }
 
                         
@@ -751,7 +753,10 @@ namespace BTFindTree
                 }
 
             }
-
+            if (frequency == 0)
+            {
+                frequency = 1;
+            }
             return new RepeateModel
             {
                 MatchCount = frequency,

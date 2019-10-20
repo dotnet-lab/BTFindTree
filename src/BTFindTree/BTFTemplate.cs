@@ -296,7 +296,6 @@ namespace BTFindTree
                         else
                         {
 
-                           
                             caseBuilder.AppendLine(ForeachPrecisionTree(node.Next, parirs));
                             caseBuilder.AppendLine("break;");
 
@@ -305,6 +304,7 @@ namespace BTFindTree
                     }
 
                 }
+
             }
 
             var result = new StringBuilder();

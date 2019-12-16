@@ -86,7 +86,7 @@ namespace BTFindTree
                 var node = tree;
 
 
-                //value==default不为空则Nodes定有值
+                //value==default 不为空则 Nodes 定有值
                 //如果是单节点，则直接优化掉，节点层数+1
                 while (node.Nodes != default && node.Nodes.Count == 1)
                 {

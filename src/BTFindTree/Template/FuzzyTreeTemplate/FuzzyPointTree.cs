@@ -9,7 +9,7 @@ namespace BTFindTree
 
         public List<FuzzyPointTree> Nodes;
         public readonly string Value;
-        public readonly long PointCode;
+        public readonly ushort PointCode;
         public int Layer;
 
 
@@ -20,8 +20,11 @@ namespace BTFindTree
         public FuzzyPointTree(KeyValuePair<string, string> value, int layer = 0)
         {
 
+            //当前结果值
             Value = value.Value;
+            //当前匹配值
             PointCode = value.Key.GetUShort(layer);
+            //当前层数
             Layer = layer;
 
         }
@@ -29,11 +32,12 @@ namespace BTFindTree
 
 
 
-        public FuzzyPointTree(IDictionary<string, string> values, int layer = 0, long pCode = 0)
+        public FuzzyPointTree(IDictionary<string, string> values, int layer = 0, ushort pCode = 0)
         {
 
             Layer = layer;
             PointCode = pCode;
+
 
             if (values.Count == 1 && layer != 0)
             {
@@ -53,16 +57,22 @@ namespace BTFindTree
 
                 //初始化节点
                 Nodes = new List<FuzzyPointTree>();
-                var valuesDict = new Dictionary<int, Dictionary<string, string>>();
+                var valuesDict = new Dictionary<ushort, Dictionary<string, string>>();
 
 
                 foreach (var item in values)
                 {
 
                     //如果长度小于指针偏移量则视为叶子节点
-                    if (item.Key.Length < layer * OfferSet)
+                    //如果当前指针偏移量已经超过字符串总长度
+                    if (item.Key.Length <= layer * OfferSet)
                     {
 
+                        //         2
+                        //  1 -
+                        //         2
+                        //         3
+                        //  1 节点的 Nodes 集合里将存放 节点 2/2/3
                         Nodes.Add(new FuzzyPointTree(item, layer));
 
                     }
@@ -70,7 +80,7 @@ namespace BTFindTree
                     {
 
                         //获取当前元素Key值偏移量的指针数据
-                        int pcode = item.Key.GetUShort(layer);
+                        ushort pcode = item.Key.GetUShort(layer);
                         if (!valuesDict.ContainsKey(pcode))
                         {
 

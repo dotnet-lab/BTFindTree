@@ -11,7 +11,7 @@ namespace BTFindTree
         public static string GetHashBTFScript<T>(IDictionary<T, string> pairs, string parameterName = "arg")
         {
 
-            if (pairs == default && pairs.Count == 0)
+            if (pairs == default || pairs.Count == 0)
             {
                 return default;
             }
@@ -45,7 +45,7 @@ namespace BTFindTree
         public static string GetFuzzyPointBTFScript(IDictionary<string, string> pairs, string parameterName = "arg")
         {
 
-            if (pairs == default && pairs.Count == 0)
+            if (pairs == default || pairs.Count == 0)
             {
                 return default;
             }
@@ -160,7 +160,7 @@ namespace BTFindTree
         {
 
 
-            if (pairs == default && pairs.Count == 0)
+            if (pairs == default || pairs.Count == 0)
             {
                 return default;
             }

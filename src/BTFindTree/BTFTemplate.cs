@@ -11,6 +11,12 @@ namespace BTFindTree
         public static string GetHashBTFScript<T>(IDictionary<T, string> pairs, string parameterName = "arg")
         {
 
+            if (pairs == default && pairs.Count == 0)
+            {
+                return default;
+            }
+
+
             StringBuilder scriptBuilder = new StringBuilder();
             scriptBuilder.Append($"switch({parameterName}.GetHashCode()){{");
 
@@ -36,10 +42,10 @@ namespace BTFindTree
 
 
 
-        public static string GetFuzzyPointBTFScript(IDictionary<string, string> parirs, string parameterName = "arg")
+        public static string GetFuzzyPointBTFScript(IDictionary<string, string> pairs, string parameterName = "arg")
         {
 
-            if (parirs == default)
+            if (pairs == default && pairs.Count == 0)
             {
                 return default;
             }
@@ -49,7 +55,7 @@ namespace BTFindTree
             scriptBuilder.AppendLine($"fixed (char* c =  {parameterName}){{");
 
 
-            FuzzyPointTree tree = new FuzzyPointTree(parirs);
+            FuzzyPointTree tree = new FuzzyPointTree(pairs);
             scriptBuilder.Append(ForeachFuzzyTree(tree));
 
 
@@ -139,7 +145,7 @@ namespace BTFindTree
                     }
 
                 }
-                
+
                 scriptBuilder.Append('}');
 
             }
@@ -150,22 +156,27 @@ namespace BTFindTree
 
 
 
-        public static string GetPrecisionPointBTFScript(IDictionary<string, string> parirs, string parameterName = "arg")
+        public static string GetPrecisionPointBTFScript(IDictionary<string, string> pairs, string parameterName = "arg")
         {
 
-            if (parirs == default)
+
+            if (pairs == default && pairs.Count == 0)
             {
                 return default;
             }
 
+
             StringBuilder scriptBuilder = new StringBuilder();
             scriptBuilder.AppendLine($"fixed (char* c =  {parameterName}){{");
 
-            PrecisionMinPriorityTree tree = new PrecisionMinPriorityTree(parirs.Keys.ToArray());
-            scriptBuilder.AppendLine(ForeachPrecisionTree(tree.GetPriorityTrees(), parirs));
+
+            PrecisionMinPriorityTree tree = new PrecisionMinPriorityTree(pairs.Keys.ToArray());
+            scriptBuilder.AppendLine(ForeachPrecisionTree(tree.GetPriorityTrees(), pairs));
+
 
             scriptBuilder.AppendLine("}");
             return scriptBuilder.ToString();
+
         }
 
 

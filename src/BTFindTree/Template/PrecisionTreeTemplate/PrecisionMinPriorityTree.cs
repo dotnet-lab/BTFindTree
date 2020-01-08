@@ -1,4 +1,5 @@
 ﻿using BTFindTree.Template.PrecisionTreeTemplate.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,7 +11,6 @@ namespace BTFindTree
 
         private readonly int MaxLength;
         private int MaxMatchCount;
-        public readonly List<string> Values;
         private List<RepeateModel> PriorityCache;
         private readonly Dictionary<string, FrequencyModel> TripCache;
 
@@ -32,7 +32,6 @@ namespace BTFindTree
                 TripCache[strs[i]] = new FrequencyModel(strs[i]);
 
             }
-            Values = new List<string>(strs);
 
         }
 
@@ -118,7 +117,7 @@ namespace BTFindTree
                 foreach (var item in TripCache)
                 {
 
-                    //找到连续的相同位置的字符串 i 是能匹配到的频次
+                    //找到连续的相同位置的字符串, i 是能匹配到的频次
                     var list = item.Value.GetByFrequency(i);
 
 
@@ -131,18 +130,23 @@ namespace BTFindTree
                         //记录上一次偏移量，如果有间隔，则添加间隔
                         //如果当前偏移量和连续节点的偏移量不相等
                         //说明连续节点有了跳跃
-                        //  x x x x x x x - - - - - - - - - index - - - - -
-                        //  | ____offset____|_GetFromSpace__|         |__length__|
-                        //
+                        //                                             start index 
+                        //                                                     ↓
+                        //  - - - - - -  x x x x x x x x x x - - - - -
+                        //  | ____offset____|_GetFromSpace__|___length__| 
                         if (offset != itemList.StartIndex)
                         {
                             //搜集中间被跳过字符串的分割策略
-                            //
                             modelCache.AddRange(GetFromSpace(itemList.StartIndex, ref offset));
                         }
 
 
                         //获取这部分字符
+                        //                                            start index 
+                        //                                                    ↓
+                        //  - - - - - -  - - - - - - - - - x x x x x x
+                        //                        |____________str___________|___length__|                  
+                        //  |____________________offset__________________|                          
                         var str = item.Key.Substring(itemList.StartIndex, itemList.Length);
 
 
@@ -164,9 +168,10 @@ namespace BTFindTree
 
 
                         //偏移量继续递增，跳到当前连续节点的后面
-                        //  x x x x x x x x x x x x x x x x x index - - - - -
-                        //                                                                 |__length__|
-                        //  |_____________________________offset___________________________________|
+                        //                                            start index 
+                        //                                                    ↓
+                        //  - - - - - -  - - - - - - - - - x x x x x x
+                        //  |_____________________________offset_________________ _________|
                         //  
                         offset += itemList.Length;
 
@@ -174,11 +179,12 @@ namespace BTFindTree
 
 
                     //偏移量继续递增，跳到当前连续节点的后面
-                    //  x x x x x x x x x x x x x x x x x xxxxx - - - - -
+                    //  - - - - - - - - - - - - -  - - - - - x x x x x x
                     //  |_____________________________offset____________________|
                     //  |_____________________________MaxLength___________________________|
                     modelCache.AddRange(GetFromSpace(MaxLength, ref offset));
 
+                    
                     //获取最小权
                     int result = GetPriority(modelCache);
                     //选取最小权分配节点
@@ -210,20 +216,19 @@ namespace BTFindTree
             var list = new List<RepeateModel>(from result in temp
                                               orderby result.MatchCount descending
                                               select result);
-            return GetTrees(Values, list);
+            return GetTrees(TripCache.Keys, list);
 
         }
-
 
 
         /*            n1                                  n2
         *        /    \      \                          /     \ 
         *       /      \      \                        /       \
-        *     n3e      n4      d4                     n5       n6e
-        *               |     /  \                    /\
-        *              n7e  n8e  n9e               n10e  n11e
+        *     n3e      n4      d4               n5       n6e
+        *                    |     /  \               /\
+        *                n7e  n8e  n9e   n10e  n11e
         *             
-        *   n：节点
+        *   n: 节点
         *   d: 无数据的空白节点
         *   e: 末尾
         */
@@ -232,9 +237,9 @@ namespace BTFindTree
 
             //创建字符串集合缓存
             HashSet<string> cache = new HashSet<string>(strs);
-            int startLength = cache.Count;
             //创建叶节点集合
             List<PriorityTreeModel> lists = new List<PriorityTreeModel>();
+
 
             //如果当前深度小于集合数量
             if (deepth < models.Count)
@@ -248,7 +253,7 @@ namespace BTFindTree
 
                 //找到当前层的分割节点
                 var model = models[deepth];
-                //遍历字符串，起初为传入构造函数的集合
+                //遍历字符串，起初传入构造函数的集合
                 foreach (var item in strs)
                 {
 
@@ -302,7 +307,7 @@ namespace BTFindTree
 
                         }
                         else
-                        { 
+                        {
 
                             //如果 拾取长度 小于 字符串的总长度 ，说明可以充分截取
                             node = item.Substring(model.StartIndex, model.Length);
@@ -348,10 +353,10 @@ namespace BTFindTree
 
                             }
 
-                            
+
                         }
 
-                        
+
                         cache.Remove(item);
 
                     }
@@ -448,25 +453,25 @@ namespace BTFindTree
             }
 
 
+            int remain = target - offset;
             //如果处理完之后偏移量仍然有剩余
-            if (offset != target)
+            if (remain > 0)
             {
 
                 RepeateModel model2 = new RepeateModel();
+                model2.StartIndex = offset;
+
                 //如果相差3个长度
-                if (target - offset == 3)
+                if (remain == 3)
                 {
 
-                    //提前借一位，并取4个长度
-                    model2.StartIndex = offset;
                     model2.Length = 4;
 
                 }
                 else
                 {
 
-                    model2.StartIndex = offset;
-                    model2.Length = target - offset;
+                    model2.Length = remain;
 
                 }
                 //偏移量增加
@@ -553,7 +558,7 @@ namespace BTFindTree
         {
 
             List<RepeateModel> result = new List<RepeateModel>();
-            RepeateModel model;
+            RepeateModel model = default;
 
             if (str.Length < 3 || str.Length == 4)
             {
@@ -584,50 +589,52 @@ namespace BTFindTree
 
                 //3个字符借位求权
                 int tempPriority3 = 0;
-                if (order == MatchOrder.LeftToRight)
-                {
-                    model = GetFrequencyByOffsetAndIndex(other, index, 4);
-                    tempPriority3 += model.MatchCount;
-                }
-                else if (order == MatchOrder.RightToLeft)
-                {
-                    model = GetFrequencyByOffsetAndIndex(other, index, 4);
-                    tempPriority3 += model.MatchCount;
-                }
+                model = GetFrequencyByOffsetAndIndex(other, index, 4);
+                tempPriority3 = model.MatchCount;
 
 
                 //匹配权比较
                 if (tempPriority1 >= tempPriority2)
                 {
 
-                    if (tempPriority1 >= tempPriority3)
+                    if (tempPriority1 >= tempPriority3 || order == MatchOrder.None)
                     {
                         model1.StartIndex += offset;
                         result.Add(model1);
                         model2.StartIndex += offset + 2;
                         result.Add(model2);
                     }
-                    else
+                    else if (order == MatchOrder.RightToLeft)
                     {
-                        model3.StartIndex += offset - 1;
-                        result.Add(model3);
+                        model.StartIndex += offset - 1;
+                        result.Add(model);
+                    }
+                    else if (order == MatchOrder.LeftToRight)
+                    {
+                        model.StartIndex += offset;
+                        result.Add(model);
                     }
 
                 }
                 else
                 {
 
-                    if (tempPriority2 >= tempPriority3)
+                    if (tempPriority2 >= tempPriority3 || order == MatchOrder.None)
                     {
                         model3.StartIndex += offset;
                         result.Add(model3);
                         model4.StartIndex += offset + 1;
                         result.Add(model4);
                     }
-                    else
+                    else if (order == MatchOrder.RightToLeft)
                     {
-                        model3.StartIndex += offset - 1;
-                        result.Add(model3);
+                        model.StartIndex += offset - 1;
+                        result.Add(model);
+                    }
+                    else if (order == MatchOrder.LeftToRight)
+                    {
+                        model.StartIndex += offset;
+                        result.Add(model);
                     }
 
                 }
@@ -638,11 +645,14 @@ namespace BTFindTree
 
                 //如果是4个或者4个以上的, 那么找到4个字符为一组的，匹配最多的那组
                 model = GetMaxFrequencyModel(str, index);
-                
+
 
                 //如果该组左侧有字符，那么递归处理左侧字符
+                //如果获取的匹配节点的起点不在原点，证明左边是有剩余字符串的
                 if (model.StartIndex > 0)
                 {
+
+                    //获取左边的字符
                     var source = str.Substring(0, model.StartIndex);
                     if (source.Length == 3)
                     {

@@ -50,21 +50,25 @@ namespace BenchmarkTest
             //Dict["a73c5"] = 23;
             //Dict["a7"] = 24;
             //Dict["a74d5"] = 25;
-            //Dict["^[peIO`"] = 1;
-            //Dict["A"] = 3342;
-            //Dict["`BLBD}Z"] = 3343;
-            //Dict["CTvO_uu"] = 3344;
-            //Dict["C"] = 3345;
-            //Dict["c"] = 3346;
+            Dict["^[peIO`"] = 1;
+            Dict["A"] = 3342;
+            Dict["`BLBD}Z"] = 3343;
+            Dict["CTvO_uu"] = 3344;
+            Dict["C"] = 3345;
+            Dict["c"] = 3346;
 
-            Dict["TRIMIBWMQNO"] = 3346;
-            Dict["HYARUXIATWH"] = 3347;
-            Dict["HYAR"] = 3348;
-            Dict["UHSW"] = 3349;
-            Dict["UHSWGUTMWHB"] = 3350;
-            Dict["IOKDR"] = 3351;
-            Dict["VVDIENRMEAMR"] = 3352;
-            Dict["JEUNPKDAHJGL"] = 3353;
+
+
+           // Dict["LFDJQN"] = 1;
+           // Dict["YMUPCJ"] = 2;
+           // Dict["YMUPCJRYBLPFH"] = 3;
+           // Dict["MTNUNGD"] = 4;
+           // Dict["ACFAADO"] = 5;
+           // Dict["A"] = 6;
+           ////Dict["GGVJAPIOOS"] = 3352;
+           // Dict["NJXGLAA"] = 7;
+           // Dict["B"] = 8;
+           // Dict["O"] = 9;
             ScriptDict = new Dictionary<string, string>(Dict.Select(item => KeyValuePair.Create(item.Key, "return " + item.Value.ToString() + ";")));
             //HashDelegate = NFunc<string, int>.UnsafeDelegate(BTFTemplate.GetHashBTFScript(ScriptDict)+"return default;");
             //FuzzyDelegate = NFunc<string, int>.UnsafeDelegate(BTFTemplate.GetFuzzyPointBTFScript(ScriptDict) + "return default;");
@@ -75,7 +79,7 @@ namespace BenchmarkTest
         [Fact(DisplayName = "哈希查找树")]
         public void HashFindTree()
         {
-            HashDelegate = NFunc<string, int>.UnsafeDelegate(BTFTemplate.GetHashBTFScript(ScriptDict) + "return default;");
+            HashDelegate = NDomain.Random().UnsafeFunc<string, int>(BTFTemplate.GetHashBTFScript(ScriptDict) + "return default;");
             foreach (var item in Dict)
             {
                 Assert.Equal(item.Value, HashDelegate(item.Key));
@@ -94,7 +98,7 @@ namespace BenchmarkTest
         [Fact(DisplayName = "模糊指针查找树")]
         public void FuzzyFindTree()
         {
-            FuzzyDelegate = NFunc<string, int>.UnsafeDelegate(BTFTemplate.GetFuzzyPointBTFScript(ScriptDict) + "return default;");
+            FuzzyDelegate = NDomain.Random().UnsafeFunc<string, int>(BTFTemplate.GetFuzzyPointBTFScript(ScriptDict) + "return default;");
             foreach (var item in Dict)
             {
                 Assert.Equal(item.Value, FuzzyDelegate(item.Key));
@@ -106,7 +110,8 @@ namespace BenchmarkTest
         [Fact(DisplayName = "归并最小权查找树")]
         public void PrecisionFindTree()
         {
-            PrecisionDelegate = NFunc<string, int>.UnsafeDelegate(BTFTemplate.GetPrecisionPointBTFScript(ScriptDict) + "return default;");
+            PrecisionDelegate = NDomain.Random().UnsafeFunc<string, int>(BTFTemplate.GetPrecisionPointBTFScript(ScriptDict) + "return default;");
+            var temp = BTFTemplate.GetPrecisionPointBTFScript(ScriptDict) + "return default;";
             foreach (var item in Dict)
             {
                 Assert.Equal(item.Value, PrecisionDelegate(item.Key));

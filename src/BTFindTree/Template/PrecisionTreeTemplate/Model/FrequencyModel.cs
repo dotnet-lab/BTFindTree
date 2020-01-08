@@ -40,7 +40,7 @@ namespace BTFindTree.Template.PrecisionTreeTemplate.Model
 
 
         /// <summary>
-        /// 获取匹配次数的连续字符串
+        /// 获取匹配次数的连续字符串中间段
         /// </summary>
         /// <param name="frequency">匹配频次</param>
         /// <returns></returns>

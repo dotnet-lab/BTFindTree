@@ -72,7 +72,6 @@ namespace BTFindTree
 
             StringBuilder scriptBuilder = new StringBuilder();
 
-
             if (tree.Value != default)
             {
 
@@ -158,7 +157,6 @@ namespace BTFindTree
 
         public static string GetPrecisionPointBTFScript(IDictionary<string, string> pairs, string parameterName = "arg")
         {
-
 
             if (pairs == default || pairs.Count == 0)
             {

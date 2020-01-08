@@ -19,6 +19,8 @@ namespace BTFindTree
         {
 
             TripCache = new Dictionary<string, FrequencyModel>();
+
+            //寻找最大字符串长度
             for (int i = 0; i < strs.Length; i += 1)
             {
 
@@ -26,19 +28,22 @@ namespace BTFindTree
                 {
                     MaxLength = strs[i].Length;
                 }
+                //创建字符串的字符频次缓存
                 TripCache[strs[i]] = new FrequencyModel(strs[i]);
 
             }
             Values = new List<string>(strs);
+
         }
 
 
 
 
-        private void GetSingleCharFrequency()
+        private void AddFrequencyToTripCache()
         {
 
             //统计每个字符在当前位置出现的次数
+            //遍历最大字符长度
             for (int i = 0; i < MaxLength; i += 1)
             {
 
@@ -98,19 +103,6 @@ namespace BTFindTree
 
         }
 
-        //public void Show(int length)
-        //{
-        //    Console.WriteLine("获取出现次数在{0}次以上的字符串", length);
-        //    foreach (var item in TripModels)
-        //    {
-        //        var list = item.Value.GetByMatchCount(length);
-        //        Console.WriteLine(item.Key);
-        //        foreach (var itemList in list)
-        //        {
-        //            Console.WriteLine("起始位置在：{0}，长度为：{1}；字符串为：{2}", itemList.StartIndex, itemList.Length, item.Key.Substring(itemList.StartIndex, itemList.Length));
-        //        }
-        //    }
-        //}
 
         public void GetAllWordsFrequency()
         {
@@ -210,7 +202,7 @@ namespace BTFindTree
         public List<PriorityTreeModel> GetPriorityTrees()
         {
 
-            GetSingleCharFrequency();
+            AddFrequencyToTripCache();
             GetAllWordsFrequency();
             var temp = from result in PriorityCache
                        orderby result.StartIndex ascending

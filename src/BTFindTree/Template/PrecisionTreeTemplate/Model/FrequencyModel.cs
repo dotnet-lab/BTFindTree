@@ -85,10 +85,6 @@ namespace BTFindTree.Template.PrecisionTreeTemplate.Model
                 }
             }
 
-            if (models.Count == 0)
-            {
-                models.Add(node);
-            }
             return models;
         }
 

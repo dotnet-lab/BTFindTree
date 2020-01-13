@@ -9,15 +9,15 @@
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageReleaseNotes>支持hash查找树，模糊trip查找树，归并最小权查找树。
 未初始化的字典以及元素数量为0的字典默认返回空。</PackageReleaseNotes>
-    <Version>1.1.0</Version>
+    <Version>1.1.0.1</Version>
     <PackageLicenseUrl>https://github.com/dotnet-lab/BTFindTree/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/dotnet-lab/BTFindTree</PackageProjectUrl>
     <PackageTags>FastFind; DynamicBuild;Natasha;</PackageTags>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <FileVersion>1.1.0.0</FileVersion>
+    <FileVersion>1.1.0.1</FileVersion>
     <Company>.NET Core Community</Company>
     <PackageIconUrl>https://avatars2.githubusercontent.com/u/19404084</PackageIconUrl>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <AssemblyVersion>1.1.0.1</AssemblyVersion>
     <Authors>NMSAzulX</Authors>
   </PropertyGroup>
 

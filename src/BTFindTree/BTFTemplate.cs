@@ -158,6 +158,11 @@ namespace BTFindTree
         public static string GetGroupPrecisionPointBTFScript(IDictionary<string, string> pairs, string parameterName = "arg")
         {
 
+            if (pairs == default || pairs.Count == 0)
+            {
+                return default;
+            }
+
             Dictionary<int, Dictionary<string, string>> groups = new Dictionary<int, Dictionary<string, string>>();
             foreach (var item in pairs)
             {

@@ -117,7 +117,19 @@ namespace BenchmarkTest
         public void PrecisionFindTree()
         {
             PrecisionDelegate = NDomain.Random().UnsafeFunc<string, int>(BTFTemplate.GetPrecisionPointBTFScript(ScriptDict) + "return default;");
-            var temp = BTFTemplate.GetPrecisionPointBTFScript(ScriptDict) + "return default;";
+            //var temp = BTFTemplate.GetPrecisionPointBTFScript(ScriptDict) + "return default;";
+            foreach (var item in Dict)
+            {
+                Assert.Equal(item.Value, PrecisionDelegate(item.Key));
+            }
+        }
+
+
+        [Fact(DisplayName = "分组最小权查找树")]
+        public void GroupsPrecisionFindTree()
+        {
+            PrecisionDelegate = NDomain.Random().UnsafeFunc<string, int>(BTFTemplate.GetGroupPrecisionPointBTFScript(ScriptDict) + "return default;");
+            //var temp = BTFTemplate.GetPrecisionPointBTFScript(ScriptDict) + "return default;";
             foreach (var item in Dict)
             {
                 Assert.Equal(item.Value, PrecisionDelegate(item.Key));

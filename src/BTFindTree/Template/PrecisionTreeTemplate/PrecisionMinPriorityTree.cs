@@ -452,30 +452,40 @@ namespace BTFindTree
 
             }
 
-
+           
             int remain = target - offset;
             //如果处理完之后偏移量仍然有剩余
             if (remain > 0)
             {
 
-                RepeateModel model2 = new RepeateModel();
-                model2.StartIndex = offset;
-
-                //如果相差3个长度
                 if (remain == 3)
                 {
+                    RepeateModel model2 = new RepeateModel();
+                    model2.StartIndex = offset;
+                    //如果相差3个长度
+                    model2.Length = 2;
+                    offset += 2;
+                    //偏移量增加
+                    list.Add(model2);
 
-                    model2.Length = 4;
-
+                    RepeateModel model3 = new RepeateModel();
+                    model3.StartIndex = offset;
+                    //如果相差3个长度
+                    model3.Length = 1;
+                    //偏移量增加
+                    list.Add(model3);
                 }
                 else
                 {
-
+                    RepeateModel model2 = new RepeateModel();
+                    model2.StartIndex = offset;
+                    //如果相差3个长度
                     model2.Length = remain;
-
+                    //偏移量增加
+                    list.Add(model2);
                 }
-                //偏移量增加
-                list.Add(model2);
+
+            
                 //最后处理完应该offset = target;
                 offset = target;
 
@@ -589,15 +599,19 @@ namespace BTFindTree
 
                 //3个字符借位求权
                 int tempPriority3 = 0;
-                model = GetFrequencyByOffsetAndIndex(other, index, 4);
-                tempPriority3 = model.MatchCount;
+                if (order != MatchOrder.None)
+                {
+                    
+                    model = GetFrequencyByOffsetAndIndex(other, index, 4);
+                    tempPriority3 = model.MatchCount;
 
+                }
 
                 //匹配权比较
                 if (tempPriority1 >= tempPriority2)
                 {
 
-                    if (tempPriority1 >= tempPriority3 || order == MatchOrder.None)
+                    if (tempPriority1 >= tempPriority3)
                     {
                         model1.StartIndex += offset;
                         result.Add(model1);
@@ -619,7 +633,7 @@ namespace BTFindTree
                 else
                 {
 
-                    if (tempPriority2 >= tempPriority3 || order == MatchOrder.None)
+                    if (tempPriority2 >= tempPriority3)
                     {
                         model3.StartIndex += offset;
                         result.Add(model3);
@@ -638,7 +652,6 @@ namespace BTFindTree
                     }
 
                 }
-
             }
             else
             {

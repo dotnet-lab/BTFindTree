@@ -81,7 +81,7 @@
     var dict = Dictionary<string,string>();
     dict["a"] = "return 1;";
     dict["abc"] = "return 2;";
-    string result = BTFTemplate.GetPrecisionPointBTFScript( dict );
+    string result = BTFTemplate.GetGroupPrecisionPointBTFScript( dict );
     
     //拿到 result 使用 natasha 构造。
     //例如：HashDelegate = NFunc<string, int>.UnsafeDelegate(BTFTemplate.GetPrecisionPointBTFScript(ScriptDict) + "return default;");

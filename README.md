@@ -46,7 +46,7 @@
     string result = BTFTemplate.GetHashBTFScript( dict );
     
     //拿到 result 使用 natasha 构造。
-    //例如：HashDelegate = NFunc<string, int>.UnsafeDelegate(BTFTemplate.GetHashBTFScript(ScriptDict) + "return default;");
+    //例如：HashDelegate = NDomain.Random().UnsafeFunc<string, int>(BTFTemplate.GetHashBTFScript(ScriptDict) + "return default;");
     
  ```
  
@@ -65,7 +65,7 @@
     string result = BTFTemplate.GetFuzzyPointBTFScript( dict );
     
     //拿到 result 使用 natasha 构造。
-    //例如：HashDelegate = NFunc<string, int>.UnsafeDelegate(BTFTemplate.GetFuzzyPointBTFScript(ScriptDict) + "return default;");
+    //例如：HashDelegate = NDomain.Random().UnsafeFunc<string, int>(BTFTemplate.GetFuzzyPointBTFScript(ScriptDict) + "return default;");
     
  ```
  
@@ -84,7 +84,7 @@
     string result = BTFTemplate.GetGroupPrecisionPointBTFScript( dict );
     
     //拿到 result 使用 natasha 构造。
-    //例如：HashDelegate = NFunc<string, int>.UnsafeDelegate(BTFTemplate.GetPrecisionPointBTFScript(ScriptDict) + "return default;");
+    //例如：HashDelegate = NDomain.Random().UnsafeFunc<string, int>(BTFTemplate.GetPrecisionPointBTFScript(ScriptDict) + "return default;");
     
  ```  
  

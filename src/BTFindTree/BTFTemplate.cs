@@ -185,7 +185,7 @@ namespace BTFindTree
                     scriptBuilder.Append("else ");
                 }
                 scriptBuilder.AppendLine($@"if( btfParameterLength == {item.Key}){{");
-                scriptBuilder.AppendLine(GetPrecisionPointBTFScript(item.Value));
+                scriptBuilder.AppendLine(GetPrecisionPointBTFScript(item.Value,parameterName));
                 scriptBuilder.AppendLine("}");
 
             }

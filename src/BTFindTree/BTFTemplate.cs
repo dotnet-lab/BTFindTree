@@ -190,7 +190,6 @@ namespace BTFindTree
 
             }
 
-            scriptBuilder.AppendLine("return default;");
             scriptBuilder.Insert(0,$"int btfParameterLength = {parameterName}.Length;");
             return scriptBuilder.ToString();
 

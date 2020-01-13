@@ -157,6 +157,7 @@ namespace BTFindTree
 
         public static string GetGroupPrecisionPointBTFScript(IDictionary<string, string> pairs, string parameterName = "arg")
         {
+
             Dictionary<int, Dictionary<string, string>> groups = new Dictionary<int, Dictionary<string, string>>();
             foreach (var item in pairs)
             {
@@ -170,6 +171,7 @@ namespace BTFindTree
             }
 
             StringBuilder scriptBuilder = new StringBuilder();
+            
             foreach (var item in groups)
             {
 
@@ -177,13 +179,14 @@ namespace BTFindTree
                 {
                     scriptBuilder.Append("else ");
                 }
-                scriptBuilder.AppendLine($@"if({parameterName}.Length == {item.Key}){{");
+                scriptBuilder.AppendLine($@"if( btfParameterLength == {item.Key}){{");
                 scriptBuilder.AppendLine(GetPrecisionPointBTFScript(item.Value));
                 scriptBuilder.AppendLine("}");
 
             }
 
             scriptBuilder.AppendLine("return default;");
+            scriptBuilder.Insert(0,$"int btfParameterLength = {parameterName}.Length;");
             return scriptBuilder.ToString();
 
         }

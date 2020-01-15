@@ -45,11 +45,11 @@ namespace BenchmarkTest
         //    var result = UseHash("abcdefj");
         //}
 
-        [Benchmark]
-        public void IntPtrSpanFindTree()
-        {
-            var result = UseSpanPoint("abcdefj");
-        }
+        //[Benchmark]
+        //public void IntPtrSpanFindTree()
+        //{
+        //    var result = UseSpanPoint("abcdefj");
+        //}
 
         [Benchmark]
         public void IntPtrFindTree()

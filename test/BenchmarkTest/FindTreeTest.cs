@@ -1,7 +1,10 @@
 ﻿using BenchmarkDotNet.Attributes;
 using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace BenchmarkTest
@@ -22,7 +25,7 @@ namespace BenchmarkTest
             Dict["abab1123d"] = 2;
 
             Dict["abab2213e"] = 3;
-            Dict["abab2213er"] =2;
+            Dict["abab2213er"] = 2;
 
             Dict["abab3213f"] = 4;
             Dict["abcdeff"] = 5;
@@ -31,28 +34,165 @@ namespace BenchmarkTest
             Dict["abcdefh"] = 8;
             Dict["abcdefj"] = 9;
             ConDict = new ConcurrentDictionary<string, int>(Dict);
+            UseSpanPoint("abcdefj");
+            UsePoint("abcdefj");
+            UseMemoryMarshalPoint("abcdefj");
+            UseUnsafe("abcdefj");
         }
+        //[Benchmark]
+        //public void HashFindTree()
+        //{
+        //    var result = UseHash("abcdefj");
+        //}
+
         [Benchmark]
-        public void HashFindTree()
+        public void IntPtrSpanFindTree()
         {
-            var result = UseHash("abcdefj");
+            var result = UseSpanPoint("abcdefj");
         }
-
-
 
         [Benchmark]
         public void IntPtrFindTree()
         {
             var result = UsePoint("abcdefj");
         }
-
-
+        [Benchmark]
+        public void IntPtrMemoryMarshalFindTree()
+        {
+            var result = UseMemoryMarshalPoint("abcdefj");
+        }
 
         [Benchmark]
-        public void ShortPtrFindTree()
+        public void UnsafeFindTree()
         {
-            var result = UseShort("abcdefj");
+            var result = UseUnsafe("abcdefj");
         }
+
+        public unsafe int UseMemoryMarshalPoint(string arg)
+        {
+
+            fixed (char* c = arg)
+            {
+                switch (Unsafe.ReadUnaligned<int>(c + 2))
+                {
+                    case 6422625:
+                        switch (Unsafe.ReadUnaligned<int>(c + 4))
+                        {
+                            case 3211313:
+                                switch (Unsafe.ReadUnaligned<int>(c + 8))
+                                {
+                                    case 99:
+                                        return 1;
+                                    case 100:
+                                        return 2;
+                                }
+                                break;
+                            case 3276850:
+                                switch (*(int*)(c + 8))
+                                {
+                                    case 101:
+                                        return 3;
+                                    case 7471205:
+                                        var a = 1 + 1;
+                                        break;
+                                }
+                                break;
+                            case 3276851:
+                                return 4;
+                        }
+                        break;
+                    case 6553699:
+                        switch (Unsafe.ReadUnaligned<short>(c + 6))
+                        {
+                            case 102:
+                                return 5;
+                            case 103:
+                                return 6;
+                            case 105:
+                                return 7;
+                            case 104:
+                                return 8;
+                            case 106:
+                                return 9;
+                        }
+                        break;
+                }
+            }
+            return default;
+
+        }
+
+
+        public unsafe int UseUnsafe(string arg)
+        {
+
+            var bytes = MemoryMarshal.AsBytes(arg.AsSpan());
+            ref var addr = ref Unsafe.AsRef(bytes[0]);
+            //var temp = MemoryMarshal.GetReference(bytes);
+            //var bytes = Unsafe.AddByteOffset<string, >(ref arg);
+            //var result = Unsafe.ReadUnaligned<uint>(ref bytes[1]);
+            //result = Unsafe.ReadUnaligned<uint>(ref bytes[2]);
+            //result = Unsafe.ReadUnaligned<uint>(ref bytes[3]);
+            //result = Unsafe.ReadUnaligned<uint>(ref bytes[4]);
+            //result = Unsafe.ReadUnaligned<uint>(ref bytes[5]);
+            //result = Unsafe.ReadUnaligned<uint>(ref bytes[6]);
+            //var result = Unsafe.ReadUnaligned<int>(ref bytes[4]);
+            // result = Unsafe.ReadUnaligned<ushort>(ref bytes[8]);
+            //var span = arg.AsSpan();
+            switch (Unsafe.ReadUnaligned<int>(ref Unsafe.Add(ref addr, 4)))
+            {
+                case 6422625:
+                    switch (Unsafe.ReadUnaligned<int>(ref Unsafe.Add(ref addr, 8)))
+                    {
+                        case 3211313:
+                            switch (Unsafe.ReadUnaligned<int>(ref Unsafe.Add(ref addr, 16)))
+                            {
+                                case 99:
+                                    return 1;
+                                case 100:
+                                    return 2;
+                            }
+                            break;
+                        case 3276850:
+                            switch (Unsafe.ReadUnaligned<int>(ref Unsafe.Add(ref addr, 16)))
+                            {
+                                case 101:
+                                    return 3;
+                                case 7471205:
+                                    var a = 1 + 1;
+                                    break;
+                            }
+                            break;
+                        case 3276851:
+                            return 4;
+                    }
+                    break;
+                case 6553699:
+                    switch (Unsafe.ReadUnaligned<short>(ref Unsafe.Add(ref addr, 12)))
+                    {
+                        case 102:
+                            return 5;
+                        case 103:
+                            return 6;
+                        case 105:
+                            return 7;
+                        case 104:
+                            return 8;
+                        case 106:
+                            return 9;
+                    }
+                    break;
+            }
+
+            return default;
+
+        }
+
+        //[Benchmark]
+        //public void ShortPtrFindTree()
+        //{
+        //    var result = UseShort("abcdefj");
+        //}
 
 
 
@@ -110,21 +250,46 @@ namespace BenchmarkTest
         }
 
 
-        [Benchmark]
-        public void ConcurrentDict()
-        {
-            var result = ConDict["abcdefj"];
-        }
+        //[Benchmark]
+        //public void ConcurrentDict()
+        //{
+        //    var result = ConDict["abcdefj"];
+        //}
 
 
-        [Benchmark]
+        //[Benchmark]
         public void NormalDict()
         {
             var result = Dict["abcdefj"];
         }
 
+        //[Benchmark]
+        public void ByteSpan()
+        {
 
+            byte[] array = new byte[512];
+            var span = array.AsSpan();
+            for (var i = 0; i < span.Length; i += 1)
+            {
+                span[i] = span[i];
+            }
 
+        }
+
+        //[Benchmark]
+        public unsafe void BytePointer()
+        {
+
+            byte[] array = new byte[512];
+            fixed (byte* pointer = array)
+            {
+                for (var i = 0; i < array.Length; i += 1)
+                {
+                    *(pointer + i) = *(pointer + i);
+                }
+            }
+
+        }
 
         public int UseHash(string arg)
         {
@@ -157,7 +322,7 @@ namespace BenchmarkTest
             return default;
         }
 
-        public unsafe int UsePoint(string arg)
+        private unsafe int UsePoint(string arg)
         {
             fixed (char* c = arg)
             {
@@ -190,7 +355,7 @@ namespace BenchmarkTest
                         }
                         break;
                     case 6553699:
-                        switch (*(int*)(c + 6))
+                        switch (*(short*)(c + 6))
                         {
                             case 102:
                                 return 5;
@@ -200,7 +365,59 @@ namespace BenchmarkTest
                                 return 7;
                             case 104:
                                 return 8;
-                        case 106:
+                            case 106:
+                                return 9;
+                        }
+                        break;
+                }
+            }
+            return default;
+        }
+
+        private unsafe int UseSpanPoint(string arg)
+        {
+            fixed (char* c = arg.AsSpan())
+            {
+                switch (*(int*)(c + 2))
+                {
+                    case 6422625:
+                        switch (*(int*)(c + 4))
+                        {
+                            case 3211313:
+                                switch (*(int*)(c + 8))
+                                {
+                                    case 99:
+                                        return 1;
+                                    case 100:
+                                        return 2;
+                                }
+                                break;
+                            case 3276850:
+                                switch (*(int*)(c + 8))
+                                {
+                                    case 101:
+                                        return 3;
+                                    case 7471205:
+                                        var a = 1 + 1;
+                                        break;
+                                }
+                                break;
+                            case 3276851:
+                                return 4;
+                        }
+                        break;
+                    case 6553699:
+                        switch (*(short*)(c + 6))
+                        {
+                            case 102:
+                                return 5;
+                            case 103:
+                                return 6;
+                            case 105:
+                                return 7;
+                            case 104:
+                                return 8;
+                            case 106:
                                 return 9;
                         }
                         break;

@@ -51,22 +51,22 @@ namespace BenchmarkTest
         //    var result = UseSpanPoint("abcdefj");
         //}
 
-        [Benchmark]
-        public void IntPtrFindTree()
-        {
-            var result = UsePoint("abcdefj");
-        }
-        [Benchmark]
-        public void IntPtrMemoryMarshalFindTree()
-        {
-            var result = UseMemoryMarshalPoint("abcdefj");
-        }
+        //[Benchmark]
+        //public void IntPtrFindTree()
+        //{
+        //    var result = UsePoint("abcdefj");
+        //}
+        //[Benchmark]
+        //public void IntPtrMemoryMarshalFindTree()
+        //{
+        //    var result = UseMemoryMarshalPoint("abcdefj");
+        //}
 
-        [Benchmark]
-        public void UnsafeFindTree()
-        {
-            var result = UseUnsafe("abcdefj");
-        }
+        //[Benchmark]
+        //public void UnsafeFindTree()
+        //{
+        //    var result = UseUnsafe2("abcdefj");
+        //}
 
         public unsafe int UseMemoryMarshalPoint(string arg)
         {
@@ -127,18 +127,8 @@ namespace BenchmarkTest
         {
 
             var bytes = MemoryMarshal.AsBytes(arg.AsSpan());
-            ref var addr = ref Unsafe.AsRef(bytes[0]);
-            //var temp = MemoryMarshal.GetReference(bytes);
-            //var bytes = Unsafe.AddByteOffset<string, >(ref arg);
-            //var result = Unsafe.ReadUnaligned<uint>(ref bytes[1]);
-            //result = Unsafe.ReadUnaligned<uint>(ref bytes[2]);
-            //result = Unsafe.ReadUnaligned<uint>(ref bytes[3]);
-            //result = Unsafe.ReadUnaligned<uint>(ref bytes[4]);
-            //result = Unsafe.ReadUnaligned<uint>(ref bytes[5]);
-            //result = Unsafe.ReadUnaligned<uint>(ref bytes[6]);
-            //var result = Unsafe.ReadUnaligned<int>(ref bytes[4]);
-            // result = Unsafe.ReadUnaligned<ushort>(ref bytes[8]);
-            //var span = arg.AsSpan();
+            ref var addr = ref Unsafe.AsRef(in bytes.GetPinnableReference());
+            
             switch (Unsafe.ReadUnaligned<int>(ref Unsafe.Add(ref addr, 4)))
             {
                 case 6422625:
@@ -193,7 +183,63 @@ namespace BenchmarkTest
         //{
         //    var result = UseShort("abcdefj");
         //}
+        public unsafe int UseUnsafe2(string arg)
+        {
 
+            //var bytes = MemoryMarshal.AsBytes(arg.AsSpan());
+            //ref var addr = ref Unsafe.AsRef(in bytes.GetPinnableReference());
+            //var span = arg.AsSpan();
+            //ref var addr = ref Unsafe.AvPointer(arg.AsSpan().GetPinnableReference());
+            ref char addr = ref Unsafe.AsRef(in arg.AsSpan().GetPinnableReference());
+
+            switch (Unsafe.As<char, int>(ref Unsafe.Add(ref addr, 2)))
+            {
+                case 6422625:
+                    switch (Unsafe.As<char, int>(ref Unsafe.Add(ref addr, 4)))
+                    {
+                        case 3211313:
+                            switch (Unsafe.As<char, int>(ref Unsafe.Add(ref addr, 8)))
+                            {
+                                case 99:
+                                    return 1;
+                                case 100:
+                                    return 2;
+                            }
+                            break;
+                        case 3276850:
+                            switch (Unsafe.As<char, int>(ref Unsafe.Add(ref addr, 8)))
+                            {
+                                case 101:
+                                    return 3;
+                                case 7471205:
+                                    var a = 1 + 1;
+                                    break;
+                            }
+                            break;
+                        case 3276851:
+                            return 4;
+                    }
+                    break;
+                case 6553699:
+                    switch (Unsafe.As<char, short>(ref Unsafe.Add(ref addr, 6)))
+                    {
+                        case 102:
+                            return 5;
+                        case 103:
+                            return 6;
+                        case 105:
+                            return 7;
+                        case 104:
+                            return 8;
+                        case 106:
+                            return 9;
+                    }
+                    break;
+            }
+
+            return default;
+
+        }
 
 
 
@@ -263,25 +309,46 @@ namespace BenchmarkTest
             var result = Dict["abcdefj"];
         }
 
-        //[Benchmark]
-        public void ByteSpan()
+
+        private static readonly byte[] array = new byte[1024];
+
+        
+
+        [Benchmark]
+        public unsafe void ByteSpan()
         {
 
-            byte[] array = new byte[512];
+            //var array = new byte[1024];
             var span = array.AsSpan();
             for (var i = 0; i < span.Length; i += 1)
             {
-                span[i] = span[i];
+                span[i] = byte.MinValue;
+            }
+
+        }
+
+
+        [Benchmark]
+        public unsafe void BytePointer()
+        {
+            
+            //var array = new byte[1024];
+            fixed (byte* pointer = array)
+            {
+                for (var i = 0; i < array.Length; i += 1)
+                {
+                    *(pointer + i) = byte.MinValue;
+                }
             }
 
         }
 
         //[Benchmark]
-        public unsafe void BytePointer()
+        public unsafe void BytePointer2()
         {
 
-            byte[] array = new byte[512];
-            fixed (byte* pointer = array)
+            //byte[] array = new byte[1024];
+            fixed (byte* pointer = &array[0])
             {
                 for (var i = 0; i < array.Length; i += 1)
                 {
@@ -376,7 +443,7 @@ namespace BenchmarkTest
 
         private unsafe int UseSpanPoint(string arg)
         {
-            fixed (char* c = arg.AsSpan())
+            fixed (char* c = arg)
             {
                 switch (*(int*)(c + 2))
                 {

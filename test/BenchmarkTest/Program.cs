@@ -9,11 +9,11 @@ namespace BenchmarkTest
         static void Main(string[] args)
         {
             //FindTreeTest a = new FindTreeTest();
-            //var b = a.UseMemoryMarshalPoint2("abcdefj");
+            //var b = a.UseUnsafe2("abcdefj");
             //Console.WriteLine(b);
-            //b = a.UseMemoryMarshalPoint2("abcdefj");
+            //b = a.UseUnsafe2("abcdefj");
             //Console.WriteLine(b);
-            //b = a.UseMemoryMarshalPoint2("abcdefj");
+            //b = a.UseUnsafe2("abcdefj");
             //Console.WriteLine(b);
             BenchmarkRunner.Run<FindTreeTest>();
 

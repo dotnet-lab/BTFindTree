@@ -1,11 +1,9 @@
 ﻿using BenchmarkDotNet.Attributes;
 using System;
-using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace BenchmarkTest
 {
@@ -128,7 +126,7 @@ namespace BenchmarkTest
 
             var bytes = MemoryMarshal.AsBytes(arg.AsSpan());
             ref var addr = ref Unsafe.AsRef(in bytes.GetPinnableReference());
-            
+
             switch (Unsafe.ReadUnaligned<int>(ref Unsafe.Add(ref addr, 4)))
             {
                 case 6422625:
@@ -310,9 +308,9 @@ namespace BenchmarkTest
         }
 
 
-        private static readonly byte[] array = new byte[1024];
+        private static readonly byte[] array = new byte[240];
 
-        
+
 
         [Benchmark]
         public unsafe void ByteSpan()
@@ -331,7 +329,7 @@ namespace BenchmarkTest
         [Benchmark]
         public unsafe void BytePointer()
         {
-            
+
             //var array = new byte[1024];
             fixed (byte* pointer = array)
             {

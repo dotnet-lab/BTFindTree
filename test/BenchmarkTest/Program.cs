@@ -8,14 +8,16 @@ namespace BenchmarkTest
     {
         static void Main(string[] args)
         {
-            //FindTreeTest a = new FindTreeTest();
+            FindTreeTest a = new FindTreeTest();
+            a.BytePointer();
+            a.ByteSpan();
             //var b = a.UseUnsafe2("abcdefj");
             //Console.WriteLine(b);
             //b = a.UseUnsafe2("abcdefj");
             //Console.WriteLine(b);
             //b = a.UseUnsafe2("abcdefj");
             //Console.WriteLine(b);
-            BenchmarkRunner.Run<FindTreeTest>();
+            //BenchmarkRunner.Run<FindTreeTest>();
 
             //Console.WriteLine(Unsafe.SizeOf<char>());
             //Test();

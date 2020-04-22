@@ -31,6 +31,20 @@
 
   了解并发字典的使用方法。
 
+- 使用自定义二分查找树  
+
+```C#  
+
+var dict = Dictionary<T,string>();
+dict["a"] = "return 1;";
+dict["abc"] = "return 2;";  
+
+var script = BTFTemplate.GetCustomerBTFScript(dict,"arg.GetHashCode()",item=>item.GetHashCode().ToString())+"return default;";  
+以上便构建了一段完整的利用HashCode查找的方法体。
+//如switch(arg.GetHashCode()){ case 28273847: xxx }
+//其中case 28273847 是由 GetCustomerBTFScript 第三个参数，Func<TKey,string> 委托得到的。
+
+```  
 
 - 使用 Hash 二分查找树
 

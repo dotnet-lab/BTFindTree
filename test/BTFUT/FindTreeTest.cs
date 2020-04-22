@@ -85,6 +85,7 @@ namespace BenchmarkTest
         [Fact(DisplayName = "哈希查找树")]
         public void HashFindTree()
         {
+
             HashDelegate = NDomain.Random().UnsafeFunc<string, int>(BTFTemplate.GetHashBTFScript(ScriptDict) + "return default;");
             foreach (var item in Dict)
             {
@@ -92,6 +93,18 @@ namespace BenchmarkTest
             }
 
         }
+        [Fact(DisplayName = "自定义查找树1")]
+        public void CustomerFindTree()
+        {
+
+            HashDelegate = NDomain.Random().UnsafeFunc<string, int>(BTFTemplate.GetCustomerBTFScript(ScriptDict,"arg.GetHashCode()",item=>item.GetHashCode().ToString()) + "return default;");
+            foreach (var item in Dict)
+            {
+                Assert.Equal(item.Value, HashDelegate(item.Key));
+            }
+
+        }
+
 
         [Fact(DisplayName = "空-初始化")]
         public void RunNull()

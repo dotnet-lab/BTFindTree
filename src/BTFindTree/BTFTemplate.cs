@@ -1,4 +1,5 @@
 ﻿using BTFindTree.Template.PrecisionTreeTemplate.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,6 +8,40 @@ namespace BTFindTree
 {
     public class BTFTemplate
     {
+
+        public static string GetCustomerBTFScript<T>(IDictionary<T, string> pairs, string switchCode = "arg.GetHashCode()", Func<T, string> caseCode = null)
+        {
+
+            if (pairs == default || pairs.Count == 0)
+            {
+                return default;
+            }
+
+
+            StringBuilder scriptBuilder = new StringBuilder();
+            scriptBuilder.Append($"switch({switchCode}){{");
+
+
+            foreach (var item in pairs)
+            {
+
+                scriptBuilder.AppendLine($"case {caseCode?.Invoke(item.Key)}:");
+                scriptBuilder.AppendLine(item.Value);
+                if (!item.Value.Contains("return "))
+                {
+                    scriptBuilder.AppendLine("break;");
+                }
+
+            }
+
+
+            scriptBuilder.Append("}");
+            return scriptBuilder.ToString();
+
+        }
+
+
+
 
         public static string GetHashBTFScript<T>(IDictionary<T, string> pairs, string parameterName = "arg")
         {

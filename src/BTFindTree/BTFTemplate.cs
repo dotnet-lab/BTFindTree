@@ -9,7 +9,7 @@ namespace BTFindTree
     public class BTFTemplate
     {
 
-        public static string GetCustomerBTFScript<T>(IDictionary<T, string> pairs, string switchCode = "arg.GetHashCode()", Func<T, string> caseCode = null)
+        public static string GetCustomerBTFScript<T>(IDictionary<T, string> pairs, string switchCode, Func<T, string> caseCode = null)
         {
 
             if (pairs == default || pairs.Count == 0)

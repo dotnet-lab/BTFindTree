@@ -1,5 +1,6 @@
 ﻿using BTFindTree;
 using Natasha;
+using Natasha.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -141,6 +142,7 @@ namespace BenchmarkTest
         [Fact(DisplayName = "分组最小权查找树")]
         public void GroupsPrecisionFindTree()
         {
+            NErrorLog.Enabled = true;
             PrecisionDelegate = NDomain.Random().UnsafeFunc<string, int>(BTFTemplate.GetGroupPrecisionPointBTFScript(ScriptDict) + "return default;");
             //var temp = BTFTemplate.GetPrecisionPointBTFScript(ScriptDict) + "return default;";
             foreach (var item in Dict)

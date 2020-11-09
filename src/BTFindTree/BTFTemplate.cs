@@ -27,10 +27,10 @@ namespace BTFindTree
 
                 scriptBuilder.AppendLine($"case {caseCode?.Invoke(item.Key)}:");
                 scriptBuilder.AppendLine(item.Value);
-                if (!item.Value.Contains("return "))
-                {
-                    scriptBuilder.AppendLine("break;");
-                }
+                //if (!item.Value.Contains("return "))
+                //{
+                //    scriptBuilder.AppendLine("break;");
+                //}
 
             }
 
@@ -211,7 +211,7 @@ namespace BTFindTree
             }
 
             StringBuilder scriptBuilder = new StringBuilder();
-            
+            Dictionary<int, string> result = new Dictionary<int, string>();
             foreach (var item in groups)
             {
 
@@ -219,11 +219,11 @@ namespace BTFindTree
                 {
                     scriptBuilder.Append("else ");
                 }
-                scriptBuilder.AppendLine($@"if( btfParameterLength == {item.Key}){{");
-                scriptBuilder.AppendLine(GetPrecisionPointBTFScript(item.Value,parameterName));
-                scriptBuilder.AppendLine("}");
+                result[item.Key] = GetPrecisionPointBTFScript(item.Value, parameterName) + "break;";
 
             }
+            scriptBuilder.AppendLine(GetCustomerBTFScript(result, "btfParameterLength", item => item.ToString()));
+
 
             scriptBuilder.Insert(0,$"int btfParameterLength = {parameterName}.Length;");
             return scriptBuilder.ToString();

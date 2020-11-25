@@ -1,5 +1,6 @@
 ﻿using BTFindTree;
 using Natasha;
+using Natasha.CSharp;
 using Natasha.Log;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,10 @@ namespace BenchmarkTest
 
     public class FindTreeTest
     {
+        static FindTreeTest()
+        {
+            NatashaInitializer.InitializeAndPreheating();
+        }
 
         Func<string, int> HashDelegate;
         Func<string, int> FuzzyDelegate;
@@ -87,7 +92,7 @@ namespace BenchmarkTest
         public void HashFindTree()
         {
 
-            HashDelegate = NDomain.Random().UnsafeFunc<string, int>(BTFTemplate.GetHashBTFScript(ScriptDict) + "return default;");
+            HashDelegate = NDelegate.RandomDomain().UnsafeFunc<string, int>(BTFTemplate.GetHashBTFScript(ScriptDict) + "return default;");
             foreach (var item in Dict)
             {
                 Assert.Equal(item.Value, HashDelegate(item.Key));
@@ -98,7 +103,7 @@ namespace BenchmarkTest
         public void CustomerFindTree()
         {
 
-            HashDelegate = NDomain.Random().UnsafeFunc<string, int>(BTFTemplate.GetCustomerBTFScript(ScriptDict,"arg.GetHashCode()",item=>item.GetHashCode().ToString()) + "return default;");
+            HashDelegate = NDelegate.RandomDomain().UnsafeFunc<string, int>(BTFTemplate.GetCustomerBTFScript(ScriptDict,"arg.GetHashCode()",item=>item.GetHashCode().ToString()) + "return default;");
             foreach (var item in Dict)
             {
                 Assert.Equal(item.Value, HashDelegate(item.Key));
@@ -118,7 +123,8 @@ namespace BenchmarkTest
         [Fact(DisplayName = "模糊指针查找树")]
         public void FuzzyFindTree()
         {
-            FuzzyDelegate = NDomain.Random().UnsafeFunc<string, int>(BTFTemplate.GetFuzzyPointBTFScript(ScriptDict) + "return default;");
+            //NSucceedLog.Enabled = true;
+            FuzzyDelegate = NDelegate.RandomDomain().UnsafeFunc<string, int>(BTFTemplate.GetGroupFuzzyPointBTFScript(ScriptDict) + "return default;");
             foreach (var item in Dict)
             {
                 Assert.Equal(item.Value, FuzzyDelegate(item.Key));
@@ -130,8 +136,7 @@ namespace BenchmarkTest
         [Fact(DisplayName = "归并最小权查找树")]
         public void PrecisionFindTree()
         {
-            PrecisionDelegate = NDomain.Random().UnsafeFunc<string, int>(BTFTemplate.GetPrecisionPointBTFScript(ScriptDict) + "return default;");
-            //var temp = BTFTemplate.GetPrecisionPointBTFScript(ScriptDict) + "return default;";
+            PrecisionDelegate = NDelegate.RandomDomain().UnsafeFunc<string, int>(BTFTemplate.GetPrecisionPointBTFScript(ScriptDict) + "return default;");
             foreach (var item in Dict)
             {
                 Assert.Equal(item.Value, PrecisionDelegate(item.Key));
@@ -143,7 +148,7 @@ namespace BenchmarkTest
         public void GroupsPrecisionFindTree()
         {
             NErrorLog.Enabled = true;
-            PrecisionDelegate = NDomain.Random().UnsafeFunc<string, int>(BTFTemplate.GetGroupPrecisionPointBTFScript(ScriptDict) + "return default;");
+            PrecisionDelegate = NDelegate.RandomDomain().UnsafeFunc<string, int>(BTFTemplate.GetGroupPrecisionPointBTFScript(ScriptDict) + "return default;");
             //var temp = BTFTemplate.GetPrecisionPointBTFScript(ScriptDict) + "return default;";
             foreach (var item in Dict)
             {

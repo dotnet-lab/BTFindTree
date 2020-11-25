@@ -76,6 +76,43 @@ namespace BTFindTree
 
 
 
+        public static string GetGroupFuzzyPointBTFScript(IDictionary<string, string> pairs, string parameterName = "arg")
+        {
+
+            if (pairs == default || pairs.Count == 0)
+            {
+                return default;
+            }
+
+            Dictionary<int, Dictionary<string, string>> groups = new Dictionary<int, Dictionary<string, string>>();
+            foreach (var item in pairs)
+            {
+                int length = item.Key.Length;
+                if (!groups.ContainsKey(length))
+                {
+                    groups[length] = new Dictionary<string, string>();
+                }
+                groups[length][item.Key] = item.Value;
+
+            }
+
+            StringBuilder scriptBuilder = new StringBuilder();
+            Dictionary<int, string> result = new Dictionary<int, string>();
+            foreach (var item in groups)
+            {
+
+                result[item.Key] = GetFuzzyPointBTFScript(item.Value, parameterName) + "break;";
+
+            }
+            scriptBuilder.AppendLine(GetCustomerBTFScript(result, "btfParameterLength", item => item.ToString()));
+
+
+            scriptBuilder.Insert(0, $"int btfParameterLength = {parameterName}.Length;");
+            return scriptBuilder.ToString();
+
+        }
+
+
 
         public static string GetFuzzyPointBTFScript(IDictionary<string, string> pairs, string parameterName = "arg")
         {
@@ -85,16 +122,29 @@ namespace BTFindTree
                 return default;
             }
 
-
             StringBuilder scriptBuilder = new StringBuilder();
-            scriptBuilder.AppendLine($"fixed (char* c =  {parameterName}){{");
+            if (pairs.Count == 1)
+            {
+                foreach (var item in pairs)
+                {
+                    scriptBuilder.AppendLine($"if({parameterName}[0] == '{item.Key[0]}'){{ {item.Value} }}");
+                }
+                
+            }
+            else
+            {
+                scriptBuilder.AppendLine($"fixed (char* c =  {parameterName}){{");
 
 
-            FuzzyPointTree tree = new FuzzyPointTree(pairs);
-            scriptBuilder.Append(ForeachFuzzyTree(tree));
+                FuzzyPointTree tree = new FuzzyPointTree(pairs);
+                scriptBuilder.Append(ForeachFuzzyTree(tree));
 
 
-            scriptBuilder.Append("}");
+                scriptBuilder.Append("}");
+            }
+
+           
+            
             return scriptBuilder.ToString();
 
         }
@@ -215,10 +265,6 @@ namespace BTFindTree
             foreach (var item in groups)
             {
 
-                if (scriptBuilder.Length != 0)
-                {
-                    scriptBuilder.Append("else ");
-                }
                 result[item.Key] = GetPrecisionPointBTFScript(item.Value, parameterName) + "break;";
 
             }
@@ -243,14 +289,27 @@ namespace BTFindTree
 
 
             StringBuilder scriptBuilder = new StringBuilder();
-            scriptBuilder.AppendLine($"fixed (char* c =  {parameterName}){{");
+            if (pairs.Count == 1)
+            {
+                foreach (var item in pairs)
+                {
+                    scriptBuilder.AppendLine($"if({parameterName} == \"{item.Key}\"){{ {item.Value} }}");
+                }
+
+            }
+            else
+            {
+                scriptBuilder.AppendLine($"fixed (char* c =  {parameterName}){{");
 
 
-            PrecisionMinPriorityTree tree = new PrecisionMinPriorityTree(pairs.Keys.ToArray());
-            scriptBuilder.AppendLine(ForeachPrecisionTree(tree.GetPriorityTrees(), pairs));
+                PrecisionMinPriorityTree tree = new PrecisionMinPriorityTree(pairs.Keys.ToArray());
+                scriptBuilder.AppendLine(ForeachPrecisionTree(tree.GetPriorityTrees(), pairs));
 
 
-            scriptBuilder.AppendLine("}");
+                scriptBuilder.AppendLine("}");
+            }
+            
+           
             return scriptBuilder.ToString();
 
         }

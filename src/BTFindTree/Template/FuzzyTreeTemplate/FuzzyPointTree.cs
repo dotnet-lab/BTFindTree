@@ -38,7 +38,6 @@ namespace BTFindTree
             Layer = layer;
             PointCode = pCode;
 
-
             if (values.Count == 1 && layer != 0)
             {
 
@@ -64,7 +63,7 @@ namespace BTFindTree
                 {
 
                     //如果长度小于指针偏移量则视为叶子节点
-                    //如果当前指针偏移量已经超过字符串总长度
+                    //如果 Key总长度 <= 当前指针偏移量
                     if (item.Key.Length <= layer * OfferSet)
                     {
 

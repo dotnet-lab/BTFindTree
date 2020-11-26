@@ -184,19 +184,16 @@ namespace BenchmarkTest
         public unsafe int UseUnsafe2(string arg)
         {
 
-            //var bytes = MemoryMarshal.AsBytes(arg.AsSpan());
-            //ref var addr = ref Unsafe.AsRef(in bytes.GetPinnableReference());
-            //var span = arg.AsSpan();
-            //ref var addr = ref Unsafe.AvPointer(arg.AsSpan().GetPinnableReference());
-            ref char addr = ref Unsafe.AsRef(in arg.AsSpan().GetPinnableReference());
+            var bytes = MemoryMarshal.GetReference(arg.AsSpan());
+            ref byte byteRef = ref Unsafe.As<char, byte>(ref bytes);
 
-            switch (Unsafe.As<char, int>(ref Unsafe.Add(ref addr, 2)))
+            switch (Unsafe.ReadUnaligned<int>(ref Unsafe.Add(ref byteRef, 2)))
             {
                 case 6422625:
-                    switch (Unsafe.As<char, int>(ref Unsafe.Add(ref addr, 4)))
+                    switch (Unsafe.ReadUnaligned<int>(ref Unsafe.Add(ref byteRef, 4)))
                     {
                         case 3211313:
-                            switch (Unsafe.As<char, int>(ref Unsafe.Add(ref addr, 8)))
+                            switch (Unsafe.ReadUnaligned<int>(ref Unsafe.Add(ref byteRef, 8)))
                             {
                                 case 99:
                                     return 1;
@@ -205,7 +202,7 @@ namespace BenchmarkTest
                             }
                             break;
                         case 3276850:
-                            switch (Unsafe.As<char, int>(ref Unsafe.Add(ref addr, 8)))
+                            switch (Unsafe.ReadUnaligned<int>(ref Unsafe.Add(ref byteRef, 8)))
                             {
                                 case 101:
                                     return 3;
@@ -219,7 +216,7 @@ namespace BenchmarkTest
                     }
                     break;
                 case 6553699:
-                    switch (Unsafe.As<char, short>(ref Unsafe.Add(ref addr, 6)))
+                    switch (Unsafe.ReadUnaligned<int>(ref Unsafe.Add(ref byteRef, 6)))
                     {
                         case 102:
                             return 5;

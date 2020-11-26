@@ -123,8 +123,8 @@ namespace BenchmarkTest
         [Fact(DisplayName = "模糊指针查找树")]
         public void FuzzyFindTree()
         {
-            //NSucceedLog.Enabled = true;
-            FuzzyDelegate = NDelegate.RandomDomain().UnsafeFunc<string, int>(BTFTemplate.GetGroupFuzzyPointBTFScript(ScriptDict) + "return default;");
+            NSucceedLog.Enabled = true;
+            FuzzyDelegate = NDelegate.RandomDomain(item=>item.LogSyntaxError().LogCompilerError()).UnsafeFunc<string, int>(BTFTemplate.GetGroupFuzzyPointBTFScript(ScriptDict) + "return default;");
             foreach (var item in Dict)
             {
                 Assert.Equal(item.Value, FuzzyDelegate(item.Key));

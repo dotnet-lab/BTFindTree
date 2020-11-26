@@ -2,12 +2,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace BTFindTree
 {
     public class BTFTemplate
     {
+
+        private static readonly int _charLength = Unsafe.SizeOf<char>();
 
         public static string GetCustomerBTFScript<T>(IDictionary<T, string> pairs, string switchCode, Func<T, string> caseCode = null)
         {
@@ -19,7 +22,7 @@ namespace BTFindTree
 
 
             StringBuilder scriptBuilder = new StringBuilder();
-            scriptBuilder.Append($"switch({switchCode}){{");
+            scriptBuilder.AppendLine($"switch({switchCode}){{");
 
 
             foreach (var item in pairs)
@@ -27,10 +30,6 @@ namespace BTFindTree
 
                 scriptBuilder.AppendLine($"case {caseCode?.Invoke(item.Key)}:");
                 scriptBuilder.AppendLine(item.Value);
-                //if (!item.Value.Contains("return "))
-                //{
-                //    scriptBuilder.AppendLine("break;");
-                //}
 
             }
 
@@ -104,10 +103,10 @@ namespace BTFindTree
                 result[item.Key] = GetFuzzyPointBTFScript(item.Value, parameterName) + "break;";
 
             }
+            scriptBuilder.AppendLine($"int btfParameterLength = {parameterName}.Length;");
+            scriptBuilder.AppendLine($@"ref char charRef = ref MemoryMarshal.GetReference({parameterName}.AsSpan());
+            ref byte byteRef = ref Unsafe.As<char, byte>(ref charRef);");
             scriptBuilder.AppendLine(GetCustomerBTFScript(result, "btfParameterLength", item => item.ToString()));
-
-
-            scriptBuilder.Insert(0, $"int btfParameterLength = {parameterName}.Length;");
             return scriptBuilder.ToString();
 
         }
@@ -133,14 +132,9 @@ namespace BTFindTree
             }
             else
             {
-                scriptBuilder.AppendLine($"fixed (char* c =  {parameterName}){{");
-
-
+               
                 FuzzyPointTree tree = new FuzzyPointTree(pairs);
                 scriptBuilder.Append(ForeachFuzzyTree(tree));
-
-
-                scriptBuilder.Append("}");
             }
 
            
@@ -194,7 +188,11 @@ namespace BTFindTree
 
 
                 //一个集合必然已switch开头
-                scriptBuilder.Append($"switch (*({FuzzyPointTree.OfferType}*)(c+{FuzzyPointTree.OfferSet * tree.Layer})){{");
+                if (tree.Layer != 0)
+                {
+                    scriptBuilder.AppendLine($"byteRef = ref Unsafe.Add(ref byteRef, {FuzzyPointTree.OfferSet * tree.Layer});");
+                }
+                scriptBuilder.Append("switch (Unsafe.ReadUnaligned<ushort>(ref byteRef)){");
                 if (tree.Nodes == default)
                 {
 
@@ -215,7 +213,7 @@ namespace BTFindTree
                             //证明当前节点分支一定还需要再判断
                             scriptBuilder.AppendLine($"case {item.PointCode}:");
                             scriptBuilder.Append(ForeachFuzzyTree(item));
-                            scriptBuilder.Append("break;");
+                            scriptBuilder.AppendLine("break;");
 
                         }
                         else
@@ -270,8 +268,9 @@ namespace BTFindTree
             }
             scriptBuilder.AppendLine(GetCustomerBTFScript(result, "btfParameterLength", item => item.ToString()));
 
+           
 
-            scriptBuilder.Insert(0,$"int btfParameterLength = {parameterName}.Length;");
+            scriptBuilder.Insert(0,$"int btfParameterLength = {parameterName}.Length;{Environment.NewLine}");
             return scriptBuilder.ToString();
 
         }

@@ -123,8 +123,7 @@ namespace BenchmarkTest
         [Fact(DisplayName = "模糊指针查找树")]
         public void FuzzyFindTree()
         {
-            NSucceedLog.Enabled = true;
-            FuzzyDelegate = NDelegate.RandomDomain(item=>item.LogSyntaxError().LogCompilerError()).UnsafeFunc<string, int>(BTFTemplate.GetGroupFuzzyPointBTFScript(ScriptDict) + "return default;");
+            FuzzyDelegate = NDelegate.RandomDomain(item=>item.LogSyntaxError().LogCompilerError()).Func<string, int>(BTFTemplate.GetGroupFuzzyPointBTFScript(ScriptDict) + "return default;");
             foreach (var item in Dict)
             {
                 Assert.Equal(item.Value, FuzzyDelegate(item.Key));
@@ -133,22 +132,12 @@ namespace BenchmarkTest
 
 
 
-        [Fact(DisplayName = "归并最小权查找树")]
-        public void PrecisionFindTree()
-        {
-            PrecisionDelegate = NDelegate.RandomDomain().UnsafeFunc<string, int>(BTFTemplate.GetPrecisionPointBTFScript(ScriptDict) + "return default;");
-            foreach (var item in Dict)
-            {
-                Assert.Equal(item.Value, PrecisionDelegate(item.Key));
-            }
-        }
-
 
         [Fact(DisplayName = "分组最小权查找树")]
         public void GroupsPrecisionFindTree()
         {
             NErrorLog.Enabled = true;
-            PrecisionDelegate = NDelegate.RandomDomain().UnsafeFunc<string, int>(BTFTemplate.GetGroupPrecisionPointBTFScript(ScriptDict) + "return default;");
+            PrecisionDelegate = NDelegate.RandomDomain(item=>item.LogSyntaxError().LogCompilerError()).UnsafeFunc<string, int>(BTFTemplate.GetGroupPrecisionPointBTFScript(ScriptDict) + "return default;");
             //var temp = BTFTemplate.GetPrecisionPointBTFScript(ScriptDict) + "return default;";
             foreach (var item in Dict)
             {

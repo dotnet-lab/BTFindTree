@@ -28,7 +28,7 @@ namespace SelfTest
             //dict["abcdefh"] = "return 8;";
             //dict["abcdefj"] = "return 9;";
             //Console.WriteLine(BTFTemplate.GetFuzzyPointBTFScript(dict));
-            Console.WriteLine(BTFTemplate.GetPrecisionPointBTFScript(dict));
+            Console.WriteLine(BTFTemplate.GetGroupPrecisionPointBTFScript(dict));
             //Console.WriteLine(BTFTemplate.GetHashBTFScript(dict));
             Class1 a = new Class1();
             Console.WriteLine(a.C("abab2213e"));

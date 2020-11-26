@@ -113,7 +113,7 @@ namespace BTFindTree
 
 
 
-        public static string GetFuzzyPointBTFScript(IDictionary<string, string> pairs, string parameterName = "arg")
+        static string GetFuzzyPointBTFScript(IDictionary<string, string> pairs, string parameterName = "arg")
         {
 
             if (pairs == default || pairs.Count == 0)
@@ -126,7 +126,7 @@ namespace BTFindTree
             {
                 foreach (var item in pairs)
                 {
-                    scriptBuilder.AppendLine($"if({parameterName}[0] == '{item.Key[0]}'){{ {item.Value} }}");
+                    scriptBuilder.AppendLine($"if(charRef == '{item.Key[0]}'){{ {item.Value} }}");
                 }
                 
             }
@@ -134,7 +134,7 @@ namespace BTFindTree
             {
                
                 FuzzyPointTree tree = new FuzzyPointTree(pairs);
-                scriptBuilder.Append(ForeachFuzzyTree(tree));
+                scriptBuilder.Append(ForeachFuzzyTree(tree,0));
             }
 
            
@@ -146,7 +146,7 @@ namespace BTFindTree
 
 
 
-        private static StringBuilder ForeachFuzzyTree(FuzzyPointTree tree)
+        private static StringBuilder ForeachFuzzyTree(FuzzyPointTree tree,int lastLayer)
         {
 
             StringBuilder scriptBuilder = new StringBuilder();
@@ -190,13 +190,13 @@ namespace BTFindTree
                 //一个集合必然已switch开头
                 if (tree.Layer != 0)
                 {
-                    scriptBuilder.AppendLine($"byteRef = ref Unsafe.Add(ref byteRef, {FuzzyPointTree.OfferSet * tree.Layer});");
+                    scriptBuilder.AppendLine($"byteRef = ref Unsafe.Add(ref byteRef, {FuzzyPointTree.OfferSet * _charLength * (tree.Layer-lastLayer)});");
                 }
                 scriptBuilder.Append("switch (Unsafe.ReadUnaligned<ushort>(ref byteRef)){");
                 if (tree.Nodes == default)
                 {
 
-                    scriptBuilder.Append(ForeachFuzzyTree(node));
+                    scriptBuilder.Append(ForeachFuzzyTree(node, tree.Layer));
 
                 }
                 else
@@ -212,7 +212,7 @@ namespace BTFindTree
 
                             //证明当前节点分支一定还需要再判断
                             scriptBuilder.AppendLine($"case {item.PointCode}:");
-                            scriptBuilder.Append(ForeachFuzzyTree(item));
+                            scriptBuilder.Append(ForeachFuzzyTree(item, tree.Layer));
                             scriptBuilder.AppendLine("break;");
 
                         }
@@ -220,7 +220,7 @@ namespace BTFindTree
                         {
 
                             //叶节点再次交给递归处理
-                            scriptBuilder.Append(ForeachFuzzyTree(item));
+                            scriptBuilder.Append(ForeachFuzzyTree(item, tree.Layer));
 
                         }
 
@@ -266,11 +266,10 @@ namespace BTFindTree
                 result[item.Key] = GetPrecisionPointBTFScript(item.Value, parameterName) + "break;";
 
             }
+            scriptBuilder.AppendLine($"int btfParameterLength = {parameterName}.Length;");
+            scriptBuilder.AppendLine($@"ref char charRef = ref MemoryMarshal.GetReference({parameterName}.AsSpan());
+            ref byte byteRef = ref Unsafe.As<char, byte>(ref charRef);");
             scriptBuilder.AppendLine(GetCustomerBTFScript(result, "btfParameterLength", item => item.ToString()));
-
-           
-
-            scriptBuilder.Insert(0,$"int btfParameterLength = {parameterName}.Length;{Environment.NewLine}");
             return scriptBuilder.ToString();
 
         }
@@ -278,7 +277,7 @@ namespace BTFindTree
 
 
 
-        public static string GetPrecisionPointBTFScript(IDictionary<string, string> pairs, string parameterName = "arg")
+        static string GetPrecisionPointBTFScript(IDictionary<string, string> pairs, string parameterName = "arg")
         {
 
             if (pairs == default || pairs.Count == 0)
@@ -298,14 +297,11 @@ namespace BTFindTree
             }
             else
             {
-                scriptBuilder.AppendLine($"fixed (char* c =  {parameterName}){{");
 
 
                 PrecisionMinPriorityTree tree = new PrecisionMinPriorityTree(pairs.Keys.ToArray());
-                scriptBuilder.AppendLine(ForeachPrecisionTree(tree.GetPriorityTrees(), pairs));
+                scriptBuilder.AppendLine(ForeachPrecisionTree(tree.GetPriorityTrees(), pairs, 0));
 
-
-                scriptBuilder.AppendLine("}");
             }
             
            
@@ -327,7 +323,7 @@ namespace BTFindTree
          *   d: 无数据的空白节点
          *   e: 末尾
          */
-        private static string ForeachPrecisionTree(List<PriorityTreeModel> nodes, IDictionary<string, string> parirs)
+        private static string ForeachPrecisionTree(List<PriorityTreeModel> nodes, IDictionary<string, string> parirs, int lastOffset)
         {
 
 
@@ -359,7 +355,7 @@ namespace BTFindTree
                     else
                     {
 
-                        defaultBuilder.AppendLine(ForeachPrecisionTree(node.Next, parirs));
+                        defaultBuilder.AppendLine(ForeachPrecisionTree(node.Next, parirs, node.Offset));
                         defaultBuilder.AppendLine("break;");
 
                     }
@@ -382,10 +378,15 @@ namespace BTFindTree
                     }
                     else
                     {
-
-                        var (compareBuilder, code) = node.Value.GetCompareBuilder(node.Length, node.Offset);
+                       
+                        var (compareBuilder, code) = node.Value.GetCompareBuilder(node.Length);
                         if (switchBuilder.Length == 0)
                         {
+                            var offset = node.Offset - lastOffset;
+                            if (offset != 0)
+                            {
+                                switchBuilder.AppendLine($"byteRef = ref Unsafe.Add(ref byteRef, {_charLength * (offset)});");
+                            }
                             switchBuilder.AppendLine($"switch({compareBuilder}){{");
                         }
 
@@ -402,10 +403,15 @@ namespace BTFindTree
                 }
                 else
                 {
-
-                    var (compareBuilder, code) = node.Value.GetCompareBuilder(node.Length, node.Offset);
+                    
+                    var (compareBuilder, code) = node.Value.GetCompareBuilder(node.Length);
                     if (switchBuilder.Length == 0)
                     {
+                        var offset = node.Offset - lastOffset;
+                        if (offset != 0)
+                        {
+                            switchBuilder.AppendLine($"byteRef = ref Unsafe.Add(ref byteRef, {_charLength * offset});");
+                        }
                         switchBuilder.AppendLine($"switch({compareBuilder}){{");
                     }
 
@@ -441,7 +447,7 @@ namespace BTFindTree
                         else
                         {
 
-                            caseBuilder.AppendLine(ForeachPrecisionTree(node.Next, parirs));
+                            caseBuilder.AppendLine(ForeachPrecisionTree(node.Next, parirs, node.Offset));
                             caseBuilder.AppendLine("break;");
 
                         }

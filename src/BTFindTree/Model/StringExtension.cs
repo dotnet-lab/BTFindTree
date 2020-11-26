@@ -35,7 +35,7 @@ namespace BTFindTree
         }
 
 
-        public unsafe static (StringBuilder compareBuilder, ulong code) GetCompareBuilder(this string value, int length, int index)
+        public unsafe static (StringBuilder compareBuilder, ulong code) GetCompareBuilder(this string value, int length)
         {
            
             ulong code;
@@ -58,7 +58,7 @@ namespace BTFindTree
 
 
             StringBuilder builder = new StringBuilder();
-            builder.Append($"*({ type}*)(c + {index}) ");
+            builder.Append($"Unsafe.ReadUnaligned<{type}>(ref byteRef)");
             return (builder, code) ;
 
         }

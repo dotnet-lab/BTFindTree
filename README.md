@@ -76,7 +76,7 @@ var script = BTFTemplate.GetCustomerBTFScript(dict,"arg.GetHashCode()",item=>ite
     var dict = Dictionary<string,string>();
     dict["a"] = "return 1;";
     dict["abc"] = "return 2;";
-    string result = BTFTemplate.GetFuzzyPointBTFScript( dict );
+    string result = BTFTemplate.GetGroupFuzzyPointBTFScript( dict );
     
     //拿到 result 使用 natasha 构造。
     //例如：HashDelegate = NDomain.Random().UnsafeFunc<string, int>(BTFTemplate.GetFuzzyPointBTFScript(ScriptDict) + "return default;");

@@ -87,13 +87,30 @@ namespace BenchmarkTest
                 }
 
             }
-            
-            
 
+        }
+
+        [Benchmark]
+        public void Safe3()
+        {
+            //IntPtr offset = IntPtr.Add 2;
+            ref char charRef = ref MemoryMarshal.GetReference(_target.AsSpan());
+            ref byte byteRef = ref Unsafe.As<char, byte>(ref charRef);
+            var result = Unsafe.ReadUnaligned<ushort>(ref byteRef);
+            if (result == 115)
+            {
+                byteRef = ref Unsafe.AddByteOffset(ref byteRef, offset+0);
+                result = Unsafe.ReadUnaligned<ushort>(ref byteRef);
+                if (result != 104)
+                {
+                    throw new Exception("值不相等！");
+                }
+
+            }
 
         }
         [Benchmark]
-        public void Safe3()
+        public void Safe4()
         {
             ref char charRef = ref MemoryMarshal.GetReference(_target.AsSpan());
             ref ushort shortRef = ref Unsafe.As<char, ushort>(ref charRef);
